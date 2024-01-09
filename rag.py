@@ -1,4 +1,4 @@
-lass RepositoryIndex:
+class RepositoryIndex:
     def __init__(self, github_api):
         self.github_api =  github_api
 
