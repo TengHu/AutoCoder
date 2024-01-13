@@ -22,12 +22,12 @@ class AutoCoder:
     def __init__(self, github_api, index):
         self.github_api = github_api
 
-        # self.client = trace_client(AzureOpenAI(
+        # self.client = trace_client_v2(AzureOpenAI(
         #     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
         #     api_key=os.getenv("AZURE_OPENAI_KEY"),
         #     api_version="2023-10-01-preview"
         # ))
-        self.client = trace_client(OpenAI(), decorators=[traceable(run_type="tool")])
+        self.client = trace_client_v2(OpenAI(), decorators=[traceable(run_type="tool")])
         self.messages = [
             {
                 "role": "system",
