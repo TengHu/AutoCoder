@@ -11,5 +11,13 @@ class LFUCache:
         pass
 
     def put(self, key: int, value: int) -> None:
-        # TODO: Implement the put method
+        if len(self.cache) >= self.capacity:
+            # Find the least frequently accessed item and remove it
+            lfu_key = min(self.frequency, key=lambda k: self.frequency[k])
+            self.cache.pop(lfu_key)
+            self.frequency.pop(lfu_key)
+        # Add the new item to the cache and update the frequency
+        self.cache[key] = value
+        self.frequency[key] = self.frequency.get(key, 0) + 1
+        self.min_freq = min(self.frequency.values())
         pass
