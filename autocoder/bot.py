@@ -20,6 +20,7 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
+    """AutoCoder class following PEP 8 style guide."""
     def __init__(self, github_api, index):
         self.github_api = github_api
 
