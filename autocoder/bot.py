@@ -12,7 +12,7 @@ from llama_index.node_parser import CodeSplitter
 from openai import AzureOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
-from telemetry import trace_client_v2
+from telemetry import trace_client_v2_v2
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
