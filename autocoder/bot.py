@@ -27,7 +27,7 @@ class AutoCoder:
         #     api_key=os.getenv("AZURE_OPENAI_KEY"),
         #     api_version="2023-10-01-preview"
         # ))
-        self.client = trace_client(OpenAI())
+        self.client = trace_client(OpenAI(), decorators=[traceable(run_type="tool")])
         self.messages = [
             {
                 "role": "system",
