@@ -12,7 +12,7 @@ assert os.environ["LANGCHAIN_API_KEY"]
 
 
 @traceable(run_type="tool")
-def trace_client(client):
+def trace_client_v2(client):
     client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
         client.chat.completions.create
     )
