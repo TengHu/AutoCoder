@@ -7,7 +7,12 @@ class LFUCache:
         self.min_freq = 0
 
     def get(self, key: int) -> int:
-        # TODO: Implement the get method
+        if key not in self.cache:
+            return -1
+        # Update the frequency of access
+        self.frequency[key] += 1
+        self.min_freq = min(self.frequency.values())
+        return self.cache[key]
         pass
 
     def put(self, key: int, value: int) -> None:
