@@ -1,5 +1,9 @@
 # auto_coder
 
+        ####################
+        Task Description: Combine the new content with the existing README.md file content, ensuring a coherent structure and clear formatting.
+        Execute the code change: Concatenate the new content with the existing content of the README.md file.
+
 ## Purpose
 The auto_coder project is designed to automate coding tasks using AI-powered tools. It aims to streamline the development process by providing assistance with code generation, refactoring, and documentation.
 
