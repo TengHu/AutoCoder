@@ -24,4 +24,4 @@ Contributions to AutoCoder are welcome! To contribute, please fork the repositor
 
 ## License
 
-Details about the licensing of AutoCoder.
+AutoCoder is licensed under the MIT License. This permissive license allows for reuse within proprietary software provided that all copies of the licensed software include a copy of the MIT License terms. Contributions to the AutoCoder project are also bound by the same licensing agreement.
