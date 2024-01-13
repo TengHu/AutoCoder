@@ -171,6 +171,10 @@ class AutoCoder:
         return response
 
     @action("PlanCodeChange", decorators=[traceable(run_type="tool")])
+    def reformat_code(self):
+        # Optionally, use an automated tool like `black` or `autopep8` to reformat the code.
+        # Run `black autocoder/bot.py` or `autopep8 --in-place --aggressive --aggressive autocoder/bot.py` to automatically reformat the code.
+        pass
     def plan_code_change(self, description: str):
         """
         Plan code changes based on a given description.
