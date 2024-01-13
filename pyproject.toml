@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "auto-coder"
+version = "0.1.0"
+description = ""
+authors = ['Teng "Niel" Hu <hu.niel92@gmail.com>']
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+actionweaver = "^0.0.22"
+langsmith = "^0.0.80"
+langchain-community = "^0.0.12"
+pygithub = "^2.1.1"
+llama-index = "^0.9.30"
+tree-sitter = "^0.20.4"
+tree-sitter-languages = "^1.9.1"
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.0.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
