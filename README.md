@@ -1,6 +1,10 @@
 # auto_coder
 
         ####################
+        Task Description: Update the README.md file in the repository with the new combined content.
+        Execute the code change: Use the GitHubAPIWrapper's update_file method to push the updated README.md content to the repository.
+
+        ####################
         Task Description: Combine the new content with the existing README.md file content, ensuring a coherent structure and clear formatting.
         Execute the code change: Concatenate the new content with the existing content of the README.md file.
 
