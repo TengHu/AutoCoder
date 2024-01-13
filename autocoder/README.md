@@ -16,7 +16,7 @@ To install AutoCoder, ensure that you have Python 3.6 or higher installed on you
 
 ## Usage
 
-Guidelines on how to use AutoCoder effectively.
+To use AutoCoder, start by initializing the tool with your project's configuration. Use the command `autocoder init` to set up the necessary project files. You can then perform tasks such as refactoring code with `autocoder refactor <file_path>`, detecting bugs with `autocoder detect-bugs`, or generating code with `autocoder generate <feature_name>`. For a full list of commands and options, refer to the documentation with `autocoder --help`.
 
 ## Contributing
 
