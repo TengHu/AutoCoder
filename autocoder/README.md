@@ -20,7 +20,7 @@ To use AutoCoder, start by initializing the tool with your project's configurati
 
 ## Contributing
 
-Information on how to contribute to the AutoCoder project.
+Contributions to AutoCoder are welcome! To contribute, please fork the repository and create a new branch for your feature or bug fix. After making your changes, submit a pull request with a clear description of the changes and any relevant issue numbers. Contributions are accepted based on code quality, relevance, and adherence to the project's coding standards. For more information, please read the CONTRIBUTING.md file.
 
 ## License
 
