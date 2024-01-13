@@ -31,6 +31,6 @@ github_api = GitHubAPIWrapper(
 
 index = RepositoryIndex(github_api, github_repository)
 
-auto_coder = AutoCoder(github_api, None)
+auto_coder = AutoCoder(github_api, None, decorators=[traceable(run_type="tool")])
 res = auto_coder("What are the open issues?")
 print(res)
