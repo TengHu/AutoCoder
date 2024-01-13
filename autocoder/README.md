@@ -12,7 +12,7 @@ AutoCoder is a cutting-edge software automation tool that simplifies the coding 
 
 ## Installation
 
-Instructions on how to install AutoCoder.
+To install AutoCoder, ensure that you have Python 3.6 or higher installed on your system. Begin by cloning the repository using `git clone https://github.com/TengHu/auto_coder.git`. Navigate to the project directory and install the required dependencies with `pip install -r requirements.txt`. Finally, run `python setup.py install` to install the AutoCoder package.
 
 ## Usage
 
