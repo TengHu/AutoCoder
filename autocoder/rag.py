@@ -3,6 +3,27 @@ from llama_index.node_parser import CodeSplitter
 
 
 class RepositoryIndex:
+    """
+    The RepositoryIndex class is responsible for indexing the codebase of a GitHub repository.
+
+    It interacts with the GitHub API to retrieve file information and uses the Llama Index to create a searchable vector index of the code.
+
+    Attributes:
+        github_api: An instance of GitHubAPIWrapper used to interact with the GitHub API.
+        github_repository: The name of the GitHub repository being indexed.
+        files: A list of file paths in the repository, filtered to include only Python files.
+        documents: A list of Document objects representing the indexed files.
+        index: An instance of VectorStoreIndex that allows querying the indexed documents.
+
+    Methods:
+        __init__(self, github_api, github_repository): Initializes the RepositoryIndex with the GitHub API and repository name.
+        query(self, text: str): Queries the index with a given text and returns matching nodes.
+
+    Example:
+        >>> github_api = GitHubAPIWrapper(...)
+        >>> repo_index = RepositoryIndex(github_api, 'my_repository')
+        >>> nodes = repo_index.query('search query')
+    """
     def __init__(self, github_api, github_repository):
         self.github_api = github_api
 
