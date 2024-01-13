@@ -6,9 +6,9 @@ AutoCoder is an innovative tool designed to automate coding tasks and streamline
 
 ## Features
 
-- Feature 1: Description
-- Feature 2: Description
-- Feature 3: Description
+- Feature 1: Automated Code Refactoring - AutoCoder can intelligently suggest and perform code refactoring to improve code quality and maintainability.
+- Feature 2: Bug Detection and Resolution - Utilizes advanced algorithms to detect potential bugs in the code and offers solutions to fix them.
+- Feature 3: Code Generation - Generates boilerplate code and complete code snippets based on user requirements to speed up the development process.
 
 ## Installation
 
