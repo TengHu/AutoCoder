@@ -2,7 +2,9 @@ class LFUCache:
     def __init__(self, capacity: int):
         # Initialize the LFU cache with a given capacity
         self.capacity = capacity
-        # TODO: Define internal data structures
+        self.frequency = {}
+        self.cache = {}
+        self.min_freq = 0
 
     def get(self, key: int) -> int:
         # TODO: Implement the get method
