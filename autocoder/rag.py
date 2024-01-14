@@ -42,6 +42,11 @@ class RepositoryIndex:
         )
 
     def query(self, text: str):
+        """
+        Query the index with a natural language text and return the most relevant code snippets.
+
+        The results are sorted by a combination of factors including last update time, score, length, and number of commits, to provide the most relevant and up-to-date information.
+        """
         query_engine = self.index.as_query_engine(
             similarity_top_k=10, response_mode="no_text"
         )
