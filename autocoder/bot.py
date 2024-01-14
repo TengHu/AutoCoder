@@ -19,6 +19,9 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
+
+    def check_file_existence(self, file_path):
+        return check_file_exists(self.github_api.github_repository, file_path)
     def __init__(self, github_api, index):
         self.github_api = github_api
 
