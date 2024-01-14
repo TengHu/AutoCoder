@@ -156,6 +156,7 @@ create_tasks = action_from_model(
 
 
 class Context(BaseModel):
+    search_code_action: str = Field(default="", description="Action to search code in the repository.")
     semantic_queries: List[str] = Field(
         default=[],
         description="List of semantic queries used to extract information from the codebase, encompassing elements such as function names, class names, import statements, variable names, and error messages, all relevant to the task.",
