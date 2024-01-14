@@ -19,6 +19,16 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
+    """
+    AutoCoder is a class responsible for automating coding tasks such as managing a codebase,
+    answering questions, and planning code changes.
+    
+    Attributes:
+        github_api (GitHubAPIWrapper): An instance of the GitHubAPIWrapper to interact with GitHub.
+        index (VectorStoreIndex): An instance of VectorStoreIndex to perform semantic queries.
+        client (OpenAI): An instance of OpenAI client to generate responses.
+        messages (List[dict]): A list of messages that represent the conversation history.
+    """
     def __init__(self, github_api, index):
         self.github_api = github_api
 
