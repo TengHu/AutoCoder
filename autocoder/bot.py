@@ -12,6 +12,16 @@ from llama_index.node_parser import CodeSplitter
 from openai import AzureOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
+def trace_client(client):
+    client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
+        client.chat.completions.create
+    )
+    client = patch(client)
+    client.chat.completions.create = traceable(
+        name="chat_completion_create", run_type="llm"
+    )(client.chat.completions.create)
+    return client
+
 from telemetry import trace_client
 
 assert os.environ["MODEL"]
