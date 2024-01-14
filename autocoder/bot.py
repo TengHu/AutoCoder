@@ -30,6 +30,10 @@ MODEL = os.environ["MODEL"]
 
 class AutoCoder:
 
+    def test_changes(self):
+        # Implement your test logic here
+        pass
+
     @action(name="ReadTodoComment", decorators=[traceable(run_type="tool")])
     def read_todo_comment(self, file_path: str, todo_comment: str):
         """
