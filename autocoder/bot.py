@@ -57,6 +57,15 @@ class AutoCoder:
         print(f"[System] {msg}")
 
     def __call__(self, input: str):
+        """
+        Processes the input from the user and generates a response using the OpenAI client.
+
+        Args:
+            input (str): The input string from the user.
+
+        Returns:
+            str: The generated response from the assistant.
+        """
         self.messages.append({"role": "user", "content": input})
 
         response = self.client.chat.completions.create(
