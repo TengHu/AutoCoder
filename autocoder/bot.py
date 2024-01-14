@@ -222,6 +222,15 @@ class AutoCoder:
 
     def read_files(self, files: List[str]) -> List[str]:
         """
+        Reads the content of multiple files from the GitHub repository.
+
+        Args:
+            files (List[str]): A list of file paths to read.
+
+        Returns:
+            str: The combined content of the read files.
+        """
+        """
         Read the content of multiple files in the GitHub repo
 
         Args:
