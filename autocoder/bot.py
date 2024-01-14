@@ -101,24 +101,28 @@ class AutoCoder:
             context = context[0]
 
         index_response = ""
-        for query in context.semantic_queries + context.instructions:
+        for query in context.queries + context.instructions:
             nodes = self.index.query(query)
             for node in nodes:
                 index_response = (
                     index_response
                     + DIVIDING_LINE.format(
-                        input=f"Code Snippet From File: {node.metadata['file']}"
+                        input=f"Code Snippet From Filepath: {node.metadata['file']}"
                     )
-                    + f"{node.text}"
+                    + f"{node.text}\n"
+                    + "<END OF SNIPPET>"
                 )
 
         file_response = self.read_files(context.files)
+        code_search_response = self.search_code(" ".join(context.code_snippets))
 
         return (
             "CONTEXT FOR MAKING CODE MODIFICATIONS:\n"
             + index_response
             + "\n"
             + file_response
+            + "\n"
+            + code_search_response
         )
 
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
@@ -182,8 +186,8 @@ class AutoCoder:
             if f"File not found `{file}`" not in api_response:
                 response = (
                     response
-                    + DIVIDING_LINE.format(input=f"{file} full content:")
-                    + f"{self.github_api.read_file(file)}\n"
+                    + DIVIDING_LINE.format(input=f"Content From Filepath: {file}")
+                    + f"{self.github_api.read_file(file)}\n<END OF FILE>"
                 )
         return response
 
@@ -253,6 +257,5 @@ class AutoCoder:
 """
         )
 
-    # TODO: Make search_code an action and add it in the Context object in pydantic_models.py
     def search_code(self, query: str):
         return self.github_api.search_code(query)
