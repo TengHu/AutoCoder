@@ -29,6 +29,18 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
+
+    @action(name="ReadTodoComment", decorators=[traceable(run_type="tool")])
+    def read_todo_comment(self, file_path: str, todo_comment: str):
+        """
+        Read and comprehend the instructions provided in a TODO comment.
+
+        Parameters:
+        file_path (str): The path to the file containing the TODO comment.
+        todo_comment (str): The content of the TODO comment to be understood.
+        """
+        # TODO: Implement the logic to read and comprehend the TODO comment
+        pass
     def __init__(self, github_api, index):
         self.github_api = github_api
 
