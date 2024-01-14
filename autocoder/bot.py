@@ -125,7 +125,7 @@ class AutoCoder:
     def question_answer(self, rewritten_query: str, keywords: List[str]):
         """Answer questions about the codebase"""
 
-        context = self.gather_context(" ".join(keywords))
+        context = self.gather_context(description=" ".join(keywords))
 
         messages = [
             {
@@ -212,7 +212,7 @@ class AutoCoder:
         inserting new code, refactoring existing code, replacing segments, or making
         general modifications.
         """
-        context = self.gather_context(description)
+        context = self.gather_context(description=description)
 
         user_prompt = f"""
         {context}
