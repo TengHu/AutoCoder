@@ -140,6 +140,16 @@ class AutoCoder:
 
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
+        """
+        Answers questions about the codebase by gathering context and querying the OpenAI client.
+
+        Args:
+            rewritten_query (str): The rewritten query to be answered.
+            keywords (List[str]): A list of keywords related to the query.
+
+        Returns:
+            The response from the OpenAI client.
+        """
         """Answer questions about the codebase"""
 
         context = self.gather_context(" ".join(keywords))
