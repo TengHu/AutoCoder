@@ -3,6 +3,16 @@ from llama_index.node_parser import CodeSplitter
 
 
 class RepositoryIndex:
+    """
+    A class that indexes the codebase of a GitHub repository.
+
+    This class provides functionality to list all Python files in the main branch,
+    read their contents, and create a vector store index for querying with natural language.
+
+    New Features:
+    - Ability to retrieve the last update time and number of commits for each file.
+    - Updated sorting functionality in the query method to rank results by last update time, score, length, and number of commits.
+    """
     def __init__(self, github_api, github_repository):
         self.github_api = github_api
 
