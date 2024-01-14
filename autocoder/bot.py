@@ -79,7 +79,7 @@ class AutoCoder:
         return content
 
     @traceable(run_type="tool")
-    def gather_context(self, input):
+    def gather_context(self, input, additional_params=None):
         user_prompt = input
 
         messages = [
