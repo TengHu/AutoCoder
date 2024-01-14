@@ -30,6 +30,13 @@ class AutoCoder:
         messages (List[dict]): A list of messages that represent the conversation history.
     """
     def __init__(self, github_api, index):
+        """
+        Initializes the AutoCoder instance with the given GitHub API wrapper and index.
+
+        Args:
+            github_api (GitHubAPIWrapper): The GitHub API wrapper to interact with GitHub.
+            index (VectorStoreIndex): The index to perform semantic queries.
+        """
         self.github_api = github_api
 
         # self.client = trace_client(AzureOpenAI(
