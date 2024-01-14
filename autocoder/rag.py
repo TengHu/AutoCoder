@@ -35,6 +35,6 @@ class RepositoryIndex:
 
         nodes = response.source_nodes
 
-        # TODO: ranking by last update time, score, length, number of commits
-        nodes.sort(key=lambda n: -n.score)
+        # ranking by score and line of codes
+        nodes.sort(key=lambda n: n.score + n.metadata["loc"], reverse=True)
         return nodes
