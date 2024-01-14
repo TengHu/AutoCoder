@@ -296,4 +296,13 @@ class AutoCoder:
         return tasks.execute(self.client, context)
 
     def search_code(self, query: str):
+        """
+        Searches the code in the GitHub repository based on the given query.
+
+        Args:
+            query (str): The search query.
+
+        Returns:
+            The search results from the GitHub API.
+        """
         return self.github_api.search_code(query)
