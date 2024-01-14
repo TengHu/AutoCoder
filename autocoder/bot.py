@@ -92,6 +92,15 @@ class AutoCoder:
 
     @traceable(run_type="tool")
     def gather_context(self, input):
+        """
+        Gathers context by extracting information from the user's description and performing semantic queries.
+
+        Args:
+            input (str): The user's description to extract information from.
+
+        Returns:
+            str: The combined responses from semantic queries and file readings.
+        """
         user_prompt = input
 
         messages = [
