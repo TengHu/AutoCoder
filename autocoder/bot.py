@@ -253,6 +253,6 @@ class AutoCoder:
 """
         )
 
-    # TODO: Make search_code an action and add it in the Context object in pydantic_models.py
+    @action(name="SearchCode", decorators=[traceable(run_type="tool")])
     def search_code(self, query: str):
         return self.github_api.search_code(query)
