@@ -16,7 +16,7 @@ class RepositoryIndex:
             print(f"Indexing {file}")
             text = self.github_api.read_file(file)
             loc = len([line for line in text.split("\n") if bool(line)])
-            # TODO: get last update time,  number of commits
+            # TODO: incorporate last_update_time and number_of_commits in metadata
             self.documents.append(
                 Document(text=text, metadata={"file": file, "loc": loc})
             )

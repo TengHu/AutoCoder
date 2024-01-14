@@ -12,10 +12,20 @@ from llama_index.node_parser import CodeSplitter
 from openai import AzureOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
-from telemetry import trace_client
+from autocoder.pydantic_models import create_context, create_tasks
+from autocoder.telemetry import trace_client
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
+
+
+DIVIDING_LINE = """
+###############
+This section is divider and not a part of the code.
+{input}
+#############
+
+"""
 
 
 class AutoCoder:
@@ -31,7 +41,7 @@ class AutoCoder:
         self.messages = [
             {
                 "role": "system",
-                "content": "You are an assistant tasked with managing a codebase. Think step-by-step and provide clear and comprehensive plans and answers",
+                "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
             },
         ]
         self.index = index
@@ -60,7 +70,11 @@ class AutoCoder:
             token_usage_tracker=TokenUsageTracker(500),
         )
 
-        content = response.choices[0].message.content
+        content = ""
+        try:
+            content = response.choices[0].message.content
+        except:
+            content = str(response)
         self.messages.append({"role": "assistant", "content": content})
         return content
 
@@ -69,16 +83,15 @@ class AutoCoder:
         user_prompt = input
 
         messages = [
-            {
-                "role": "system",
-                "content": "You are good at extractubg information from description",
-            },
+            # {
+            #     "role": "system",
+            #     "content": "You are good at extract information from description",
+            # },
             {"role": "user", "content": f"Description: {user_prompt}"},
         ]
         context = create_context.invoke(
             self.client,
             messages=messages,
-            temperature=0.1,
             model=MODEL,
             stream=False,
             force=True,
@@ -101,7 +114,12 @@ class AutoCoder:
 
         file_response = self.read_files(context.files)
 
-        return index_response + "\n" + file_response
+        return (
+            "CONTEXT FOR MAKING CODE MODIFICATIONS:\n"
+            + index_response
+            + "\n"
+            + file_response
+        )
 
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
@@ -150,6 +168,7 @@ class AutoCoder:
         """
         return self.github_api.create_pull_request(pr_query=f"{title}\n {description}")
 
+    @traceable(run_type="tool")
     def read_files(self, files: List[str]) -> List[str]:
         """
         Read the content of multiple files in the GitHub repo
@@ -160,7 +179,7 @@ class AutoCoder:
         response = ""
         for file in files:
             api_response = self.github_api.read_file(file)
-            if "File not found" not in api_response:
+            if f"File not found `{file}`" not in api_response:
                 response = (
                     response
                     + DIVIDING_LINE.format(input=f"{file} full content:")
@@ -168,7 +187,23 @@ class AutoCoder:
                 )
         return response
 
-    @action("PlanCodeChange", decorators=[traceable(run_type="tool")])
+    def rephrase(self, input: str):
+        messages = [{"role": "user", "content": f"{input}\n####\nRephrase"}]
+        response = self.client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            stream=False,
+            temperature=0.1,
+            token_usage_tracker=TokenUsageTracker(500),
+        )
+        content = ""
+        try:
+            content = response.choices[0].message.content
+        except:
+            content = str(response)
+        return content
+
+    @action("PlanCodeChange", stop=True, decorators=[traceable(run_type="tool")])
     def plan_code_change(self, description: str):
         """
         Plan code changes based on a given description.
@@ -176,20 +211,12 @@ class AutoCoder:
         This method is designed to handle various types of code alterations such as
         inserting new code, refactoring existing code, replacing segments, or making
         general modifications.
-
-        Parameters:
-        description (str): A detailed description of the code change required. This
-                           should include the purpose of the change, the specific
-                           areas of the codebase that are impacted, and any particular
-                           requirements or constraints that need to be considered.
-
-        need_more_context (bool): Flag indicating if additional context is needed for the task
         """
         context = self.gather_context(description)
 
         user_prompt = f"""
         {context}
-        ########
+        {'#' * 20}
         Description:
         {description}"""
 
@@ -205,7 +232,27 @@ class AutoCoder:
 
         if isinstance(tasks, list):
             tasks = tasks[0]
-        return tasks.execute(self.client, context)
+        messages = tasks.execute(self.client, self.github_api, context)
 
+        files_updated = []
+        files_created = []
+        problems = []
+        for msg in messages:
+            if "Updated file" in str(msg):
+                files_updated.append(msg)
+            elif "Created file" in str(msg):
+                files_created.append(msg)
+            else:
+                problems.append(msg)
+
+        return self.rephrase(
+            f"""
+- New files created: {files_created}
+- Existing files updated: {files_updated}
+- Problems encountered: {problems}
+"""
+        )
+
+    # TODO: Make search_code an action and add it in the Context object in pydantic_models.py
     def search_code(self, query: str):
         return self.github_api.search_code(query)

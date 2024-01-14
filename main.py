@@ -1,11 +1,11 @@
 import os
 
 from actionweaver.llms import patch
+from bot import AutoCoder
 from langchain_community.utilities.github import GitHubAPIWrapper
 from langsmith.run_helpers import traceable
 
-from bot import AutoCoder
-from rag import RepositoryIndex
+from autocoder.rag import RepositoryIndex
 
 assert os.environ["LANGCHAIN_API_KEY"]
 assert os.environ["GITHUB_APP_ID"]

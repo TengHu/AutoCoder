@@ -7,11 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-actionweaver = "^0.0.22"
+actionweaver = "0.0.23"
 langsmith = "^0.0.80"
 langchain-community = "^0.0.12"
 pygithub = "^2.1.1"
-llama-index = "^0.9.30"
+llama-index = "0.9.30"
 tree-sitter = "^0.20.4"
 tree-sitter-languages = "^1.9.1"
 

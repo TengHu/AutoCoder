@@ -1,7 +1,12 @@
+import os
 from typing import List, Union
 
 from actionweaver.actions.factories.pydantic_model_to_action import action_from_model
+from langsmith.run_helpers import traceable
 from pydantic import BaseModel, Field
+
+assert os.environ["MODEL"]
+MODEL = os.environ["MODEL"]
 
 
 class FileOperation(BaseModel):
@@ -28,7 +33,7 @@ class FileCreation(FileOperation):
         name="execute_file_creation",
         run_type="tool",
     )
-    def execute(self) -> str:
+    def execute(self, github_api) -> str:
         """
         Perform the file creation operation and return a status message.
         """
@@ -48,7 +53,7 @@ class FileUpdate(FileOperation):
     )
 
     @traceable(name="execute_file_update", run_type="tool")
-    def execute(self) -> str:
+    def execute(self, github_api) -> str:
         """
         Perform the file update operation and return a status message.
         """
@@ -71,16 +76,16 @@ class BatchFileOperations(BaseModel):
     )
 
     @traceable(name="execute_batch_file_operations", run_type="tool")
-    def execute_all(self) -> str:
+    def execute_all(self, github_api) -> str:
         """
         Execute all operations in the batch.
         """
         response = []
         for operation in self.file_creations:
-            response.append(operation.execute())
+            response.append(operation.execute(github_api))
 
         for operation in self.file_updates:
-            response.append(operation.execute())
+            response.append(operation.execute(github_api))
 
         return response
 
@@ -102,18 +107,18 @@ class Task(BaseModel):
 
     description: str = Field(..., description="Comprehensive details of the task.")
 
-    action_required: str = Field(
+    code_change_required: str = Field(
         ...,
-        description="a specific action needed to finish the task without using an external tool",
+        description="a specific code change needed to finish the task without using an external tool",
     )
 
     @traceable(name="execute_task", run_type="tool")
-    def execute(self, openai_client, context) -> str:
+    def execute(self, openai_client, github_api, context) -> str:
         user_msg = f"""
         {context}
-        ############################## 
-        Task Description: {self.description}
-        Action Required: {self.action_required}"""
+        {'#' * 20}
+        [Task Description]: {self.description}
+        [Execute the code change]: {self.code_change_required}"""
         messages = [{"role": "user", "content": user_msg}]
 
         operations = batch_file_operations.invoke(
@@ -126,24 +131,24 @@ class Task(BaseModel):
         )
         if isinstance(operations, list):
             operations = operations[0]
-        return operations.execute_all()
+        return operations.execute_all(github_api)
 
 
-class Tasks(BaseModel):
+class TaskPlan(BaseModel):
     chain_of_thought: str = Field(
-        None, description="Think step by step to plan what tasks required."
+        None, description="Think step by step to plan what coding tasks required."
     )
     tasks: List[Task]
 
     @traceable(name="execute_tasks", run_type="tool")
-    def execute(self, openai_client, context) -> str:
-        return [task.execute(openai_client, context) for task in self.tasks]
+    def execute(self, openai_client, github_api, context) -> str:
+        return [task.execute(openai_client, github_api, context) for task in self.tasks]
 
 
-CREATE_TASKS_PROMPT = "Create a list of programming tasks, each task can be accomplished by modifying existing files or creating new ones"
+CREATE_TASKS_PROMPT = "Create a list of coding tasks, each task can be accomplished by modifying existing files or creating new ones"
 create_tasks = action_from_model(
-    Tasks,
-    name="Tasks",
+    TaskPlan,
+    name="TaskPlan",
     description=CREATE_TASKS_PROMPT,
     stop=True,
     decorators=[traceable(run_type="tool")],
@@ -156,7 +161,7 @@ class Context(BaseModel):
         description="List of semantic queries used to extract information from the codebase, encompassing elements such as function names, class names, import statements, variable names, and error messages, all relevant to the task.",
     )
     instructions: List[str] = Field(
-        default=[], description="List of instructions relevant to the task."
+        default=[], description="Instructions relevant to the task."
     )
     files: List[str] = Field(default=[], description="List of files, e.g. *.py")
 
