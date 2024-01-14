@@ -202,6 +202,16 @@ class AutoCoder:
     @action(name="CreatePullRequest", decorators=[traceable(run_type="tool")])
     def create_pull_request(self, title: str, description: str):
         """
+        Creates a new pull request in the GitHub repository with the given title and description.
+
+        Args:
+            title (str): The title of the pull request.
+            description (str): The description of the pull request.
+
+        Returns:
+            The response from the GitHub API after attempting to create the pull request.
+        """
+        """
         Create a new Pull Request in a Git repository.
 
         Args:
