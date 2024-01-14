@@ -250,6 +250,15 @@ class AutoCoder:
     @action("PlanCodeChange", decorators=[traceable(run_type="tool")])
     def plan_code_change(self, description: str):
         """
+        Plans code changes based on the provided description by gathering context and creating tasks.
+
+        Args:
+            description (str): A detailed description of the code change required.
+
+        Returns:
+            The execution of tasks based on the planned code changes.
+        """
+        """
         Plan code changes based on a given description.
 
         This method is designed to handle various types of code alterations such as
