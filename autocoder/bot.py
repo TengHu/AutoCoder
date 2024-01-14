@@ -14,8 +14,8 @@ from pydantic import BaseModel, Field
 
 from telemetry import trace_client
 
-assert os.environ["MODEL"]
-MODEL = os.environ["MODEL"]
+assert os.environ['MODEL']
+MODEL = os.environ['MODEL']
 
 
 class AutoCoder:
