@@ -186,6 +186,15 @@ class AutoCoder:
     @action(name="CreateGitBranch", decorators=[traceable(run_type="tool")])
     def create_branch(self, branch: str):
         """
+        Creates a new Git branch with the specified name.
+
+        Args:
+            branch (str): The name of the new branch to be created.
+
+        Returns:
+            The response from the GitHub API after attempting to create the branch.
+        """
+        """
         Create a new Git branch.
         """
         return self.github_api.create_branch(branch)
