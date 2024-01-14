@@ -68,6 +68,11 @@ class AutoCoder:
         return content
 
     @traceable(run_type="tool")
+    def implement_transformer_architecture(self, input):
+        # Code to implement the transformer architecture task
+        pass
+
+    @traceable(run_type="tool")
     def gather_context(self, input):
         user_prompt = input
 
