@@ -18,7 +18,7 @@ assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
 
 
-class AutoCoder:
+class Auto_coder:
     """
     AutoCoder is a class responsible for automating coding tasks such as managing a codebase,
     answering questions, and planning code changes.
