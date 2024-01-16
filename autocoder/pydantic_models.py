@@ -40,24 +40,20 @@ class FileCreation(FileOperation):
         return github_api.create_file(file_query=f"{self.file_path}\n {self.content}")
 
 
-class FileUpdate(FileOperation):
+class RewriteCode(FileOperation):
     """
-    Represents an operation to update an existing file.
+    Represents an operation to rewrite code in an existing file.
     """
 
-    code_snippet_to_be_replaced: str = Field(
-        ..., description="The code already exists, but it needs to be updated."
-    )
-    new_code_snippet: str = Field(
-        ..., description="The new code to replace the old content"
-    )
+    existing_code: str = Field(..., description="The code that needs to be updated.")
+    new_code: str = Field(..., description="The new code to replace the old content.")
 
     @traceable(name="execute_file_update", run_type="tool")
     def execute(self, github_api) -> str:
         """
         Perform the file update operation and return a status message.
         """
-        content = f"""{self.file_path}\nOLD <<<<\n{self.code_snippet_to_be_replaced}\n>>>> OLD\nNEW <<<<\n{self.new_code_snippet}\n >>>> NEW"""
+        content = f"""{self.file_path}\nOLD <<<<\n{self.existing_code}\n>>>> OLD\nNEW <<<<\n{self.new_code}\n >>>> NEW"""
         return github_api.update_file(content)
 
 
@@ -66,11 +62,11 @@ class BatchFileOperations(BaseModel):
     Represents a collection of file operations to be applied.
     """
 
-    file_creations: List[FileCreation] = Field(
+    new_file_creations: List[FileCreation] = Field(
         default=[],
         description="A list of file creation operations to be performed when creating new files.",
     )
-    file_updates: List[FileUpdate] = Field(
+    rewrite_existing_code: List[RewriteCode] = Field(
         default=[],
         description="A list of file update operations to be performed when modifying existing files.",
     )
@@ -81,16 +77,16 @@ class BatchFileOperations(BaseModel):
         Execute all operations in the batch.
         """
         response = []
-        for operation in self.file_creations:
+        for operation in self.new_file_creations:
             response.append(operation.execute(github_api))
 
-        for operation in self.file_updates:
+        for operation in self.rewrite_existing_code:
             response.append(operation.execute(github_api))
 
         return response
 
 
-PLAN_CODE_CHANGE_PROMPT = """Making a collection of file changes."""
+PLAN_CODE_CHANGE_PROMPT = """Creating a compilation of code modifications, which includes both the creation of new files and the revision of existing code."""
 batch_file_operations = action_from_model(
     BatchFileOperations,
     name="BatchFileOperations",
@@ -107,9 +103,9 @@ class Task(BaseModel):
 
     description: str = Field(..., description="Comprehensive details of the task.")
 
-    code_change_required: str = Field(
+    action_required: str = Field(
         ...,
-        description="a specific code change needed to finish the task without using an external tool",
+        description="a specific action needed to finish the task without using an external tool",
     )
 
     @traceable(name="execute_task", run_type="tool")
@@ -118,7 +114,7 @@ class Task(BaseModel):
         {context}
         {'#' * 20}
         [Task Description]: {self.description}
-        [Execute the code change]: {self.code_change_required}"""
+        [Action]: {self.action_required}"""
         messages = [{"role": "user", "content": user_msg}]
 
         operations = batch_file_operations.invoke(
