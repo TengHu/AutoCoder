@@ -9,7 +9,7 @@ from langchain_community.utilities.github import GitHubAPIWrapper
 from langsmith.run_helpers import traceable
 from llama_index import Document, ServiceContext, VectorStoreIndex
 from llama_index.node_parser import CodeSplitter
-from openai import AzureOpenAI, OpenAI
+from anthropic import AzureAnthropicAI, AnthropicAI
 from pydantic import BaseModel, Field
 
 from autocoder.pydantic_models import create_context, create_tasks
