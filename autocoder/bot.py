@@ -125,7 +125,7 @@ class AutoCoder:
             + code_search_response
         )
 
-    @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
+    @action1(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
         """Answer questions about the codebase"""
 
