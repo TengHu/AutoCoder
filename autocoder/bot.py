@@ -6,7 +6,7 @@ from typing import List, Union
 from actionweaver import action
 from actionweaver.utils.tokens import TokenUsageTracker
 from langchain_community.utilities.github import GitHubAPIWrapper
-from langsmith.run_helpers import traceable
+
 from llama_index import Document, ServiceContext, VectorStoreIndex
 from llama_index.node_parser import CodeSplitter
 from openai import AzureOpenAI, OpenAI
