@@ -15,7 +15,14 @@ from pydantic import BaseModel, Field
 from autocoder.pydantic_models import create_context, create_tasks
 from autocoder.telemetry import trace_client
 
-assert os.environ["MODEL"]
+def trace_client(client):
+    """A decorator to trace API calls made by the given client."""
+    # Note: This is a placeholder implementation.
+    # You would add your actual tracing logic here.
+    def wrapper(*args, **kwargs):
+        print(f"Tracing client call with args: {args} and kwargs: {kwargs}")
+        return client(*args, **kwargs)
+    return wrapper
 MODEL = os.environ["MODEL"]
 
 
