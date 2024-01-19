@@ -127,21 +127,13 @@ class AutoCoder:
 
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
-        """Answer questions about the codebase"""
-
         context = self.gather_context(" ".join(keywords))
-
-        messages = [
-            {
-                "role": "user",
-                "content": f"{context} \n###########\n Question: {rewritten_query}",
-            }
-        ]
-        response = self.client.chat.completions.create(
+        return self.client.chat.completions.create(
             model=MODEL,
-            messages=messages,
+            messages=[{"role": "user", "content": f"{context} \n###########\n Question: {rewritten_query}"},],
             stream=False,
             token_usage_tracker=TokenUsageTracker(500),
+        )
         )
         return response
 
