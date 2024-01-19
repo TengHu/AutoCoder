@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from autocoder.pydantic_models import create_context, create_tasks
 from autocoder.telemetry import trace_client
+from autocoder.telemetry import trace_client
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
