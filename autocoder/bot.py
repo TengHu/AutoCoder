@@ -1,19 +1,25 @@
-import datetime
 import os
-import uuid
-from typing import List, Union
 
-from actionweaver import action
-from actionweaver.utils.tokens import TokenUsageTracker
-from langchain_community.utilities.github import GitHubAPIWrapper
+from actionweaver.llms import patch
 from langsmith.run_helpers import traceable
-from llama_index import Document, ServiceContext, VectorStoreIndex
-from llama_index.node_parser import CodeSplitter
-from openai import AzureOpenAI, OpenAI
-from pydantic import BaseModel, Field
 
-from autocoder.pydantic_models import create_context, create_tasks
-from autocoder.telemetry import trace_client
+os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+project_name = "autocoder"
+os.environ["LANGCHAIN_PROJECT"] = project_name  # Optional: "default" is used if not set
+
+assert os.environ["LANGCHAIN_API_KEY"]
+
+
+def trace_client(client):
+    client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
+        client.chat.completions.create
+    )
+    client = patch(client)
+    client.chat.completions.create = traceable(
+        name="chat_completion_create", run_type="llm"
+    )(client.chat.completions.create)
+    return client
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
