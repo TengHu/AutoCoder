@@ -201,51 +201,19 @@ class AutoCoder:
 
     @action("PlanCodeChange", stop=True, decorators=[traceable(run_type="tool")])
     def plan_code_change(self, description: str):
-        """
-        Plan code changes based on a given description.
-
-        This method is designed to handle various types of code alterations such as
-        inserting new code, refactoring existing code, replacing segments, or making
-        general modifications.
-        """
         context = self.gather_context(description)
-
-        user_prompt = f"""
-        {context}
-        {'#' * 20}
-        Description:
-        {description}"""
-
-        messages = [{"role": "user", "content": user_prompt}]
         tasks = create_tasks.invoke(
             self.client,
-            messages=messages,
+            messages=[{"role": "user", "content": f"{context}\n{'#' * 20}\nDescription:\n{description}"}],
             temperature=0.1,
             model=MODEL,
             stream=False,
             force=True,
         )
-
         if isinstance(tasks, list):
             tasks = tasks[0]
-        messages = tasks.execute(self.client, self.github_api, context)
-
-        files_updated = []
-        files_created = []
-        problems = []
-        for msg in messages:
-            if "Updated file" in str(msg):
-                files_updated.append(msg)
-            elif "Created file" in str(msg):
-                files_created.append(msg)
-            else:
-                problems.append(msg)
-
-        return self.rephrase(
-            f"""
-- New files created: {files_created}
-- Existing files updated: {files_updated}
-- Problems encountered: {problems}
+        results = tasks.execute(self.client, self.github_api, context)
+        return "\n".join(str(r) for r in results)
 """
         )
 
