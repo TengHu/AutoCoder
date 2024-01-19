@@ -1,7 +1,7 @@
 import os
 from typing import List, Union
 
-from actionweaver.actions.factories.pydantic_model_to_action import action_from_model
+from actionweaver.actions.factories.pydantic_model_to_action1 import action1_from_model
 from langsmith.run_helpers import traceable
 from pydantic import BaseModel, Field
 
