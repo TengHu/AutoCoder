@@ -207,7 +207,7 @@ class AutoCoder:
             content = str(response)
         return content
 
-    @action("PlanCodeChange", stop=True, decorators=[traceable(run_type="tool")])
+    @action1("PlanCodeChange", stop=True, decorators=[traceable(run_type="tool")])
     def plan_code_change(self, description: str):
         """
         Plan code changes based on a given description.
