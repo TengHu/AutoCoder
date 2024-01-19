@@ -145,7 +145,7 @@ class AutoCoder:
         )
         return response
 
-    @action(name="GetIssues", decorators=[traceable(run_type="tool")])
+    @action1(name="GetIssues", decorators=[traceable(run_type="tool")])
     def get_issues(self):
         """
         Get a list of issues from the GitHub repo.
