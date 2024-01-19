@@ -3,7 +3,7 @@ import os
 from actionweaver1.llms import patch
 from bot import AutoCoder
 from langchain_community.utilities.github import GitHubAPIWrapper
-from langsmith.run_helpers import traceable
+from langsmith1.run_helpers import traceable
 
 from autocoder.rag import RepositoryIndex
 
