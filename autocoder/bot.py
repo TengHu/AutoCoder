@@ -28,6 +28,26 @@ This section is divider and not a part of the code.
 """
 
 
+def trace_client(client):   
+    # Wrap the client to add telemetry
+    return client                 # Placeholder implementation
+
+from autocoder.pydantic_models import create_context, create_tasks
+from autocoder.telemetry import trace_client
+
+assert os.environ["MODEL"]
+MODEL = os.environ["MODEL"]
+
+
+DIVIDING_LINE = """
+###############
+This section is divider and not a part of the code.
+{input}
+#############
+
+"""
+
+
 class AutoCoder:
     def __init__(self, github_api, index):
         self.github_api = github_api
