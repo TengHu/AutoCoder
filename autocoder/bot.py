@@ -154,7 +154,7 @@ class AutoCoder:
         response = response.split("\n")
         return eval(response[1]) if len(response) > 1 else []
 
-    @action(name="CreateGitBranch", decorators=[traceable(run_type="tool")])
+    @action1(name="CreateGitBranch", decorators=[traceable(run_type="tool")])
     def create_branch(self, branch: str):
         """
         Create a new Git branch.
