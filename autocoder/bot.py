@@ -57,7 +57,7 @@ class AutoCoder:
             messages=self.messages,
             stream=False,
             temperature=0.1,
-            actions=[
+            @action1
                 self.get_issues,
                 self.question_answer,
                 self.create_pull_request,
