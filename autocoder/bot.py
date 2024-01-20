@@ -3,12 +3,11 @@ from typing import List
 
 from actionweaver import action
 from actionweaver.utils.tokens import TokenUsageTracker
-from langsmith.run_helpers import traceable
 from openai import OpenAI
 
 from autocoder.pydantic_models.context import create_context
 from autocoder.pydantic_models.file_ops import create_implementation_plan
-from autocoder.telemetry import trace_client
+from autocoder.telemetry import trace_client, traceable
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]

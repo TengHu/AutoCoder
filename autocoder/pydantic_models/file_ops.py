@@ -2,8 +2,9 @@ import os
 from typing import List
 
 from actionweaver.actions.factories.pydantic_model_to_action import action_from_model
-from langsmith.run_helpers import traceable
 from pydantic import BaseModel, Field
+
+from autocoder.telemetry import traceable
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
