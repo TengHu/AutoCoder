@@ -59,9 +59,6 @@ class FileModification(FileOperation):
             block_op.calculate_hash(): block_op for block_op in blocks.operations
         }
 
-        # unique_block_ops = {
-        #     block_op.calculate_hash(): block_op for block_op in self.blocks_operations
-        # }
         unique_block_ops_list = list(unique_block_ops.values())
 
         return [
