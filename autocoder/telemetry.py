@@ -11,12 +11,30 @@ os.environ["LANGCHAIN_PROJECT"] = project_name  # Optional: "default" is used if
 assert os.environ["LANGCHAIN_API_KEY"]
 
 
+def identity_decorator(func):
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result
+
+    return wrapper
+
+
+def traceable(*args, **kwargs):
+    if os.environ.get("LANGCHAIN_API_KEY"):
+        return traceable(*args, **kwargs)
+    else:
+        return identity_decorator
+
+
 def trace_client(client):
-    client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
-        client.chat.completions.create
-    )
-    client = patch(client)
-    client.chat.completions.create = traceable(
-        name="chat_completion_create", run_type="llm"
-    )(client.chat.completions.create)
-    return client
+    if os.environ.get("LANGCHAIN_API_KEY"):
+        client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
+            client.chat.completions.create
+        )
+        client = patch(client)
+        client.chat.completions.create = traceable(
+            name="chat_completion_create", run_type="llm"
+        )(client.chat.completions.create)
+        return client
+    else:
+        return client
