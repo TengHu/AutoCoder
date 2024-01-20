@@ -36,9 +36,9 @@ def stream_string_to_terminal(s, delay=0.1):
     import time
 
     for char in s:
-        print(char, end="", flush=True)
+        stream_string_to_terminal(res, 0.01)char, end="", flush=True)
         time.sleep(delay)
-    print()  # for newline after streaming
+    stream_string_to_terminal(res, 0.01))  # for newline after streaming
 
 
 github_repository = "TengHu/auto_coder"
@@ -52,7 +52,7 @@ index = RepositoryIndex(github_api, github_repository, codebase)
 
 autocoder = AutoCoder(github_api, index, codebase)
 
-print(
+stream_string_to_terminal(res, 0.01)
     bold_green_string("Welcome to AutoCoder! Enter your query or type 'exit' to leave")
 )
 while True:
@@ -61,7 +61,7 @@ while True:
         if user_input.lower() == "exit":
             break
         res = autocoder(user_input)
-        print(bold_blue_string("Assistant: "))
+        stream_string_to_terminal(res, 0.01)bold_blue_string("Assistant: "))
         stream_string_to_terminal(res, 0.01)
     except KeyboardInterrupt:
         break
