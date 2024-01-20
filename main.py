@@ -31,6 +31,12 @@ github_api = GitHubAPIWrapper(
 
 index = RepositoryIndex(github_api, github_repository)
 
-auto_coder = AutoCoder(github_api, None)
-res = auto_coder("What are the open issues?")
-print(res)
+while True:
+    try:
+        user_input = input('Enter your query or type "exit" to leave: ')
+        if user_input.lower() == 'exit':
+            break
+        res = auto_coder(user_input)
+        print(res)
+    except KeyboardInterrupt:
+        break
