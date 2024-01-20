@@ -27,11 +27,26 @@ os.environ["LANGCHAIN_PROJECT"] = project_name  # Optional: "default" is used if
 
 # index = RepositoryIndex(github_api, github_repository)
 
+# instantiate objects needed for implementation
+autocoder_bot = AutoCoder(github_api, index, codebase)
+
 while True:
     try:
         user_input = input('Enter your query or type "exit" to leave: ')
         if user_input.lower() == "exit":
             break
+
+        # Create an implementation plan based on user input
+        implementation_plan = autocoder_bot.PlanAndImplementCodeChange(user_input)
+        if implementation_plan:
+            print("[AutoCoder] Running implementation plan...")
+            implementation_results = implementation_plan.execute()
+            print(f"[AutoCoder] Implementation results: {implementation_results}")
+        else:
+            print("[AutoCoder] No implementation plan was created.")
+
+    except KeyboardInterrupt:
+        break
         res = "hello"
         # TODO: stream res to the user
         print(res)
