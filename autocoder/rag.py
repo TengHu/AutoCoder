@@ -3,18 +3,18 @@ from llama_index.node_parser import CodeSplitter
 
 
 class RepositoryIndex:
-    def __init__(self, github_api, github_repository):
+    def __init__(self, github_api, github_repository, codebase):
         self.github_api = github_api
+        self.codebase = codebase
 
-        content = self.github_api.list_files_in_main_branch()
-        files = content.split("\n")[1:]
+        files = codebase.list_files_in_main_branch()
         self.files = [file for file in files if ".py" in file]
 
         print(f"Indexing codebase {github_repository}")
         self.documents = []
         for i, file in enumerate(self.files):
             print(f"Indexing {file}")
-            text = self.github_api.read_file(file)
+            text = self.codebase.read_file(file)
             loc = len([line for line in text.split("\n") if bool(line)])
             # TODO: incorporate last_update_time and number_of_commits in metadata
             self.documents.append(
@@ -28,6 +28,7 @@ class RepositoryIndex:
         )
 
     def query(self, text: str):
+        # TODO: get more than 10 results
         query_engine = self.index.as_query_engine(
             similarity_top_k=10, response_mode="no_text"
         )
@@ -35,6 +36,6 @@ class RepositoryIndex:
 
         nodes = response.source_nodes
 
-        # ranking by score and line of codes
+        # TODO: ranking by score and line of code block
         nodes.sort(key=lambda n: n.score + n.metadata["loc"], reverse=True)
         return nodes
