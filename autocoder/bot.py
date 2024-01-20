@@ -12,7 +12,7 @@ from llama_index.node_parser import CodeSplitter
 from openai import AzureOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
-from autocoder.pydantic_models import create_context, create_tasks
+from autocoder.pydantic_models_v2 import create_context, create_implementation_plan
 from autocoder.telemetry import trace_client
 
 assert os.environ["MODEL"]
@@ -29,7 +29,7 @@ This section is divider and not a part of the code.
 
 
 class AutoCoder:
-    def __init__(self, github_api, index):
+    def __init__(self, github_api, index, codebase):
         self.github_api = github_api
 
         # self.client = trace_client(AzureOpenAI(
@@ -45,6 +45,7 @@ class AutoCoder:
             },
         ]
         self.index = index
+        self.codebase = codebase
 
         msg = self.create_branch(f"aw_demo_bot")
         print(f"[System] {msg}")
@@ -87,7 +88,10 @@ class AutoCoder:
             #     "role": "system",
             #     "content": "You are good at extract information from description",
             # },
-            {"role": "user", "content": f"Description: {user_prompt}"},
+            {
+                "role": "user",
+                "content": f"Description: {user_prompt}",
+            },
         ]
         context = create_context.invoke(
             self.client,
@@ -101,20 +105,28 @@ class AutoCoder:
             context = context[0]
 
         index_response = ""
-        for query in context.queries + context.instructions:
+        for query in context.queries + [context.instruction]:
             nodes = self.index.query(query)
             for node in nodes:
                 index_response = (
                     index_response
-                    + DIVIDING_LINE.format(
-                        input=f"Code Snippet From Filepath: {node.metadata['file']}"
-                    )
-                    + f"{node.text}\n"
-                    + "<END OF SNIPPET>"
+                    # + DIVIDING_LINE.format(
+                    #     input=f"Code Snippet From Filepath: {node.metadata['file']}"
+                    # )
+                    + f"\n{node.metadata['file']} <START OF SNIPPET>\n"
+                    + f"{node.text}"
+                    + f"\n<END OF SNIPPET>{node.metadata['file']}\n"
                 )
 
-        file_response = self.read_files(context.files)
-        code_search_response = self.search_code(" ".join(context.code_snippets))
+        valid_files = set(self.codebase.list_files_in_main_branch())
+        file_response = self.read_files(
+            [
+                file
+                for file in context.files_mentioned_in_instruction
+                if file in valid_files
+            ]
+        )
+        # code_search_response = self.search_code(" ".join(context.code_snippets))
 
         return (
             "CONTEXT FOR MAKING CODE MODIFICATIONS:\n"
@@ -122,7 +134,7 @@ class AutoCoder:
             + "\n"
             + file_response
             + "\n"
-            + code_search_response
+            # + code_search_response
         )
 
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
@@ -182,12 +194,13 @@ class AutoCoder:
         """
         response = ""
         for file in files:
-            api_response = self.github_api.read_file(file)
-            if f"File not found `{file}`" not in api_response:
+            api_response = self.codebase.read_file(file)
+
+            if api_response:
                 response = (
                     response
                     + DIVIDING_LINE.format(input=f"Content From Filepath: {file}")
-                    + f"{self.github_api.read_file(file)}\n<END OF FILE>"
+                    + f"{api_response}\n<END OF FILE>"
                 )
         return response
 
@@ -207,36 +220,42 @@ class AutoCoder:
             content = str(response)
         return content
 
-    @action("PlanCodeChange", stop=True, decorators=[traceable(run_type="tool")])
-    def plan_code_change(self, description: str):
+    @action(
+        "PlanAndImplementCodeChange",
+        stop=False,
+        decorators=[traceable(run_type="tool")],
+    )
+    def plan_code_change(self, instruction: str):
         """
-        Plan code changes based on a given description.
+        Plan and implement code changes based on a given description.
 
         This method is designed to handle various types of code alterations such as
         inserting new code, refactoring existing code, replacing segments, or making
         general modifications.
         """
-        context = self.gather_context(description)
+        context = self.gather_context(instruction)
 
         user_prompt = f"""
-        {context}
-        {'#' * 20}
-        Description:
-        {description}"""
+{context}
+{'#' * 20}
+User Instruction:
+{instruction}"""
 
         messages = [{"role": "user", "content": user_prompt}]
-        tasks = create_tasks.invoke(
+        implementation_plan = create_implementation_plan.invoke(
             self.client,
             messages=messages,
-            temperature=0.1,
+            temperature=1,
             model=MODEL,
             stream=False,
             force=True,
         )
 
-        if isinstance(tasks, list):
-            tasks = tasks[0]
-        messages = tasks.execute(self.client, self.github_api, context)
+        if isinstance(implementation_plan, list):
+            implementation_plan = implementation_plan[0]
+        messages = implementation_plan.execute(
+            self.client, self.github_api, context, self.codebase
+        )
 
         files_updated = []
         files_created = []
@@ -249,13 +268,14 @@ class AutoCoder:
             else:
                 problems.append(msg)
 
-        return self.rephrase(
-            f"""
+        return f"""
+I've modified and updated the codebase according to your request. Here's what I've done:
 - New files created: {files_created}
 - Existing files updated: {files_updated}
 - Problems encountered: {problems}
+
+Is there anything else I can help you with?
 """
-        )
 
     def search_code(self, query: str):
         return self.github_api.search_code(query)
