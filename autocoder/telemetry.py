@@ -1,7 +1,7 @@
 import os
 
 from actionweaver.llms import patch
-from langsmith.run_helpers import traceable
+from langsmith.run_helpers import traceable as _traceable
 
 os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
@@ -21,7 +21,7 @@ def identity_decorator(func):
 
 def traceable(*args, **kwargs):
     if os.environ.get("LANGCHAIN_API_KEY"):
-        return traceable(*args, **kwargs)
+        return _traceable(*args, **kwargs)
     else:
         return identity_decorator
 
