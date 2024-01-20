@@ -10,10 +10,10 @@ class RepositoryIndex:
         files = codebase.list_files_in_main_branch()
         self.files = [file for file in files if ".py" in file]
 
-        print(f"Indexing codebase {github_repository}")
+        print(f"[RepositoryIndex] Indexing codebase {github_repository}")
         self.documents = []
         for i, file in enumerate(self.files):
-            print(f"Indexing {file}")
+            print(f"[RepositoryIndex] Indexing {file}")
             text = self.codebase.read_file(file)
             loc = len([line for line in text.split("\n") if bool(line)])
             # TODO: incorporate last_update_time and number_of_commits in metadata

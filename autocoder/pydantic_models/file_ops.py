@@ -4,6 +4,7 @@ from typing import List
 from actionweaver.actions.factories.pydantic_model_to_action import action_from_model
 from pydantic import BaseModel, Field
 
+from autocoder.pydantic_models.code_block_ops import create_blocks
 from autocoder.telemetry import traceable
 
 assert os.environ["MODEL"]
