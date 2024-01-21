@@ -1,0 +1,1 @@
+class FileModification definition, its superclass(FileOperation), import statements to make it work in isolation.
