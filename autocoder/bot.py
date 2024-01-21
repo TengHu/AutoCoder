@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from actionweaver import action
+from autocoder.telemetry import trace_client
 from actionweaver.utils.tokens import TokenUsageTracker
 from openai import OpenAI
 
