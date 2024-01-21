@@ -1,0 +1,1 @@
+class FileOperation definition & import statements to make it work in isolation.
