@@ -1,16 +1,14 @@
 # AutoCoder: An Experimental Coding Agent
 
-AutoCoder is a cutting-edge, experimental coding agent that leverages the power of Large Language Models (LLM), `actionweaver`, `llama_index` for Retrieval-Augmented Generation (RAG), and `langsmith` for enhanced observability.
+AutoCoder is a cutting-edge, experimental coding agent that leverages the power of LLM, [ActionWeaver](https://github.com/TengHu/ActionWeaver) for function calling & orchestration, [LLamaIndex](https://www.llamaindex.ai/) for Retrieval-Augmented Generation (RAG), [Langchain](https://www.langchain.com/) community and [Langsmith](https://www.langchain.com/langsmith) for observability.
 
-
-### Important Notice
-Please note that this demo app is currently in an experimental phase and is not recommended for deployment in production environments. The app has also not undergone extensive prompt engineering to date.
+Please note that this demo app is not intended for production use.
 
 ## Architecture 
 ![graph](docs/figures/workflow.png)
 
 ## Capabilities
-AutoCoder is adept at a broad spectrum of tasks, which include:
+AutoCoder is capable of following tasks:
 -  GetIssues
     - **Description**: Fetches a list of issues from the GitHub repository.
     - **Example Question**: "Give me all active issues."
@@ -48,10 +46,10 @@ AutoCoder is adept at a broad spectrum of tasks, which include:
 - Updating `autocoder/bot.py` to use AzureOpenAI.
 
 
-## Usage Tips
-- Ensure accuracy in file path and detailed descriptions.
-- One observation is llm like to add comment/todos, instead of finishing it
-- be very descriptiv!
+## Tips
+
+- **Precision in Requests**: When requesting the bot to perform tasks, be precise with file paths and provide detailed, descriptive information instead of one-liner.
+- **Handling Partial Implementations**: The bot may occasionally insert comments such as "to-be-implemented" rather than fully writing out the code. In such cases, you can guide the bot towards the desired outcome through multiple rounds of conversation.
 
 
 ## Contributing

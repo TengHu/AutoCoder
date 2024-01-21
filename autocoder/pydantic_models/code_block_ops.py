@@ -121,6 +121,7 @@ class BlockOpOnLineIdx(BaseModel):
         ...,
         description="The line index of the last line of the original code block.",
     )
+    old_code: str = Field(..., description="The old code to be replaced.")
 
     new_code: str = Field(
         ..., description="The new code to replace the original content."
