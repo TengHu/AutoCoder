@@ -11,8 +11,9 @@ MODEL = os.environ["MODEL"]
 
 
 class BlockOp(BaseModel):
-    """
-    Represents a replacement to a continuous code block. If the intention is to remove the code block, simply set new_code to an empty string
+    """Represents a replacement for a continuous code block.
+    If the goal is to delete a code block, you can achieve it by setting the new_code to an empty string.
+    If the goal is to insert a code block, you can do so by setting the start_line_old_block and end_line_old_block to the same line before or after the code block.
     """
 
     start_line_old_block: str = Field(
@@ -59,6 +60,7 @@ class BlockOp(BaseModel):
             cutoff=cutoff,
         )
 
+        # in case fuzzy matching fails
         if not match_start_line:
             return None
         else:
@@ -71,7 +73,14 @@ class BlockOp(BaseModel):
             sanitized_content[start_line_index:],
             n=3,
             cutoff=cutoff,
-        )[0]
+        )
+
+        # in case fuzzy matching fails
+        if not match_end_line:
+            return None
+        else:
+            match_end_line = match_end_line[0]
+
         match_end_index = start_line_index + sanitized_content[start_line_index:].index(
             match_end_line
         )
