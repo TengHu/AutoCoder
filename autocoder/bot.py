@@ -5,21 +5,12 @@ from actionweaver import action
 from actionweaver.utils.tokens import TokenUsageTracker
 from openai import OpenAI
 
-from autocoder.pydantic_models.context import create_context
+from autocoder.pydantic_models.context import create_context, gather_context
 from autocoder.pydantic_models.file_ops import create_implementation_plan
 from autocoder.telemetry import trace_client, traceable
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
-
-
-DIVIDING_LINE = """
-###############
-This section is divider and not a part of the code.
-{input}
-#############
-
-"""
 
 
 class AutoCoder:
@@ -59,7 +50,7 @@ class AutoCoder:
                 self.plan_code_change,
             ],
             orch={
-                self.plan_code_change.name: None,
+                self.plan_code_change.name: self.summarize_changes,
                 self.create_pull_request.name: None,
             },
             token_usage_tracker=TokenUsageTracker(500),
@@ -73,69 +64,13 @@ class AutoCoder:
         self.messages.append({"role": "assistant", "content": content})
         return content
 
-    @traceable(run_type="tool")
-    def gather_context(self, input):
-        user_prompt = input
-
-        messages = [
-            # {
-            #     "role": "system",
-            #     "content": "You are good at extract information from description",
-            # },
-            {
-                "role": "user",
-                "content": f"Description: {user_prompt}",
-            },
-        ]
-        context = create_context.invoke(
-            self.client,
-            messages=messages,
-            model=MODEL,
-            stream=False,
-            force=True,
-        )
-
-        if isinstance(context, list):
-            context = context[0]
-
-        index_response = ""
-        for query in context.queries + [context.instruction]:
-            nodes = self.index.query(query)
-            for node in nodes:
-                index_response = (
-                    index_response
-                    # + DIVIDING_LINE.format(
-                    #     input=f"Code Snippet From Filepath: {node.metadata['file']}"
-                    # )
-                    + f"\n{node.metadata['file']} <START OF SNIPPET>\n"
-                    + f"{node.text}"
-                    + f"\n<END OF SNIPPET>{node.metadata['file']}\n"
-                )
-
-        valid_files = set(self.codebase.list_files_in_main_branch())
-        file_response = self.read_files(
-            [
-                file
-                for file in context.files_mentioned_in_instruction
-                if file in valid_files
-            ]
-        )
-        # code_search_response = self.search_code(" ".join(context.code_snippets))
-
-        return (
-            "CONTEXT FOR MAKING CODE MODIFICATIONS:\n"
-            + index_response
-            + "\n"
-            + file_response
-            + "\n"
-            # + code_search_response
-        )
-
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
         """Answer questions about the codebase"""
 
-        context = self.gather_context(" ".join(keywords))
+        context = gather_context(
+            " ".join(keywords), self.client, self.index, self.codebase
+        )
 
         messages = [
             {
@@ -176,43 +111,10 @@ class AutoCoder:
             title (str): The title of the Pull Request.
             description (str): The description of the Pull Request.
         """
-        return self.github_api.create_pull_request(pr_query=f"{title}\n {description}")
-
-    @traceable(run_type="tool")
-    def read_files(self, files: List[str]) -> List[str]:
-        """
-        Read the content of multiple files in the GitHub repo
-
-        Args:
-            files (List[str]): A list of file paths to be read using the GitHub API.
-        """
-        response = ""
-        for file in files:
-            api_response = self.codebase.read_file(file)
-
-            if api_response:
-                response = (
-                    response
-                    + DIVIDING_LINE.format(input=f"Content From Filepath: {file}")
-                    + f"{api_response}\n<END OF FILE>"
-                )
-        return response
-
-    def rephrase(self, input: str):
-        messages = [{"role": "user", "content": f"{input}\n####\nRephrase"}]
-        response = self.client.chat.completions.create(
-            model=MODEL,
-            messages=messages,
-            stream=False,
-            temperature=0.1,
-            token_usage_tracker=TokenUsageTracker(500),
+        return (
+            f"Current branch {self.github_api.active_branch}\n"
+            + self.github_api.create_pull_request(pr_query=f"{title}\n {description}")
         )
-        content = ""
-        try:
-            content = response.choices[0].message.content
-        except:
-            content = str(response)
-        return content
 
     @action(
         "PlanAndImplementCodeChange",
@@ -227,15 +129,19 @@ class AutoCoder:
         inserting new code, refactoring existing code, replacing segments, or making
         general modifications.
         """
-        context = self.gather_context(instruction)
+        context = gather_context(instruction, self.client, self.index, self.codebase)
 
-        user_prompt = f"""
-{context}
-{'#' * 20}
-User Instruction:
-{instruction}"""
-
-        messages = [{"role": "user", "content": user_prompt}]
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"{context}\n"
+                    + "<user_instruction>\n"
+                    + f"{instruction}\n"
+                    + "</user_instruction>\n"
+                ),
+            }
+        ]
         implementation_plan = create_implementation_plan.invoke(
             self.client,
             messages=messages,
@@ -248,7 +154,7 @@ User Instruction:
         if isinstance(implementation_plan, list):
             implementation_plan = implementation_plan[0]
         messages = implementation_plan.execute(
-            self.client, self.github_api, context, self.codebase
+            self.client, self.github_api, self.index, self.codebase
         )
 
         files_updated = []
@@ -263,7 +169,7 @@ User Instruction:
                 problems.append(msg)
 
         return f"""
-I've modified and updated the codebase according to your request. Here's what I've done:
+I've modified and updated the codebase according to your request in {self.github_api.active_branch} branch. Here's what I've done:
 - New files created: {files_created}
 - Existing files updated: {files_updated}
 - Problems encountered: {problems}
@@ -273,3 +179,27 @@ Is there anything else I can help you with?
 
     def search_code(self, query: str):
         return self.github_api.search_code(query)
+
+    @action(name="SummarizeChanges", stop=True, decorators=[traceable(run_type="tool")])
+    def summarize_changes(self, msg: str):
+        """Summarize the changes made in the previous step."""
+        messages = [
+            {"role": "user", "content": f"{msg}\n####\n Summarize the message above"}
+        ]
+        response = self.client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            stream=False,
+            temperature=0.1,
+            token_usage_tracker=TokenUsageTracker(500),
+        )
+        content = ""
+        try:
+            content = response.choices[0].message.content
+        except:
+            content = str(response)
+        return content
+
+    def refresh(self):
+        self.codebase.clear_cache()
+        self.index.setup()

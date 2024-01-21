@@ -5,6 +5,7 @@ from actionweaver.actions.factories.pydantic_model_to_action import action_from_
 from pydantic import BaseModel, Field
 
 from autocoder.pydantic_models.code_block_ops import create_blocks
+from autocoder.pydantic_models.context import gather_context
 from autocoder.telemetry import traceable
 
 assert os.environ["MODEL"]
@@ -23,25 +24,38 @@ class FileOperation(BaseModel):
 
 class FileModification(FileOperation):
     """
-    Represents a file modification operation, which include a rewritten_instruction and blocks_operations.
+    Represents a file modification operation
     """
 
-    rewritten_instruction: str = Field(
-        ..., description="A more detailed instruction of the what you plan to do."
+    detailed_instruction_to_do_with_old_code: str = Field(
+        ..., description="The detailed instruction to do with the old code."
     )
 
     @traceable(name="execute_file_modification", run_type="tool")
-    def execute(self, openai_client, github_api, codebase, context) -> str:
-        file_content = codebase.read_file(self.file_path)
+    def execute(self, openai_client, github_api, codebase, index) -> str:
+        input = (
+            "<file>\n"
+            + f"{self.file_path}\n"
+            + "</file>\n"
+            + "<user_instruction>\n"
+            + f"{self.detailed_instruction_to_do_with_old_code}\n"
+            + "</user_instruction>\n"
+        )
+
+        context = gather_context(
+            input=input,
+            llm_client=openai_client,
+            index=index,
+            codebase=codebase,
+        )
         messages = [
             {
                 "role": "user",
                 "content": (
-                    f"{context} \n"
-                    + f"<START OF FILE CONTENT {self.file_path}>\n"
-                    + f"<END OF CONTENT {file_content}>\n"
-                    + f"<START OF INSTRUCTION>\n"
-                    + self.rewritten_instruction
+                    f"{context}\n"
+                    + f"<action_related_to_content_in_{self.file_path}>\n"
+                    + f"{self.detailed_instruction_to_do_with_old_code}\n"
+                    + f"</action_related_to_content_in_{self.file_path}>\n"
                 ),
             },
         ]
@@ -106,14 +120,14 @@ class ImplementationPlan(BaseModel):
     )
 
     @traceable(name="execute_implementation_plan", run_type="tool")
-    def execute(self, openai_client, github_api, context, codebase) -> str:
+    def execute(self, openai_client, github_api, index, codebase) -> str:
         response = []
         for operation in self.file_creations:
             response.append(operation.execute(github_api))
 
         for operation in self.file_modifications:
             response.append(
-                operation.execute(openai_client, github_api, codebase, context)
+                operation.execute(openai_client, github_api, codebase, index)
             )
 
         return response
@@ -127,5 +141,5 @@ create_implementation_plan = action_from_model(
     name="ImplementationPlan",
     description=CREATE_IMPLEMENTATION_PROMPT,
     stop=True,
-    decorators=[traceable(run_type="tool")],
+    decorators=[traceable(name="create_implementation_plan", run_type="tool")],
 )
