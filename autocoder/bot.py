@@ -23,12 +23,11 @@ class AutoCoder:
         #     api_version="2023-10-01-preview"
         # ))
         self.client = trace_client(OpenAI())
-        self.messages = [
-            {
-                "role": "system",
-                "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
-            },
-        ]
+        self.system_message = {
+            "role": "system",
+            "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
+        }
+        self.messages = [self.system_message]
         self.index = index
         self.codebase = codebase
 
@@ -36,7 +35,14 @@ class AutoCoder:
         print(f"[System] {msg}")
 
     def __call__(self, input: str):
-        self.messages.append({"role": "user", "content": input})
+        self.original_input = input
+
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "<user_query>\n" + input + "\n</user_query>",
+            }
+        )
 
         response = self.client.chat.completions.create(
             model=MODEL,
@@ -121,23 +127,34 @@ class AutoCoder:
         stop=False,
         decorators=[traceable(run_type="tool")],
     )
-    def plan_code_change(self, instruction: str):
+    def plan_code_change(self, input: str):
         """
         Plan and implement code changes based on a given description.
-
-        This method is designed to handle various types of code alterations such as
-        inserting new code, refactoring existing code, replacing segments, or making
-        general modifications.
         """
-        context = gather_context(instruction, self.client, self.index, self.codebase)
+
+        context = gather_context(input, self.client, self.index, self.codebase)
+
+        files = [
+            file for file in self.codebase.list_files_in_bot_branch() if ".py" in file
+        ]
+
+        """ 
+        <files>
+        
+        </files>
+        """
 
         messages = [
             {
                 "role": "user",
                 "content": (
-                    f"{context}\n"
+                    ""
+                    + f"{context}\n"
+                    + "<file_list>\n"
+                    + "\n".join(files)
+                    + "\n</file_list>\n"
                     + "<user_instruction>\n"
-                    + f"{instruction}\n"
+                    + f"{input}\n"
                     + "</user_instruction>\n"
                 ),
             }

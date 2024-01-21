@@ -17,6 +17,7 @@ from llama_index.schema import QueryBundle
 class QueryResult:
     file_path: str
     content: str
+    id: str
     score: Optional[float] = None
     metadata: Optional[dict] = None
     start_char_idx: Optional[int] = None
@@ -34,7 +35,7 @@ class RepositoryIndex:
         self.setup()
 
     def setup(self):
-        files = self.codebase.list_files_in_main_branch()
+        files = self.codebase.list_files_in_bot_branch()
         self.files = [file for file in files if ".py" in file]
 
         print(f"[RepositoryIndex] Indexing codebase {self.github_repository}")
@@ -95,6 +96,7 @@ class RepositoryIndex:
         for node in nodes_dict:
             query_results.append(
                 QueryResult(
+                    id=node["node"]["id_"],
                     file_path=node["node"]["metadata"]["file"],
                     content=node["node"]["text"],
                     score=node["score"],
@@ -120,6 +122,7 @@ class RepositoryIndex:
                 if processed_snippet[1] - processed_snippet[0] > 25:
                     final_query_results.append(
                         QueryResult(
+                            id=f"{file_path}_{processed_snippet[0]}_{processed_snippet[1]}",
                             file_path=file_path,
                             content=file_content[
                                 processed_snippet[0] : processed_snippet[1]
@@ -155,8 +158,14 @@ class RepositoryIndex:
         merged_intervals = [intervals[0]]
 
         for interval in intervals[1:]:
-            current_start, current_end = merged_intervals[-1]
-            new_start, new_end = interval
+            current_start, current_end = (
+                merged_intervals[-1][0],
+                merged_intervals[-1][1],
+            )
+            new_start, new_end = (
+                interval[0],
+                interval[1],
+            )
 
             if current_end + margin >= new_start:
                 merged_intervals[-1] = (current_start, max(current_end, new_end))
