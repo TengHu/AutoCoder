@@ -46,7 +46,6 @@ class AutoCoder:
 
     def __call__(self, input: str):
         self.messages.append({"role": "user", "content": input})
-
         response = self.client.chat.completions.create(
             model=MODEL,
             messages=self.messages,
@@ -70,6 +69,11 @@ class AutoCoder:
             content = response.choices[0].message.content
         except:
             content = str(response)
+
+        if response.choices[0].message.execute:
+            plan = response.choices[0].message.execute
+            execute_plan(plan, self.client, self.github_api, self.codebase)
+
         self.messages.append({"role": "assistant", "content": content})
         return content
 
