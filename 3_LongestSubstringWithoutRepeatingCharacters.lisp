@@ -1,0 +1,11 @@
+(defun longest-substr-without-repeating-chars (s)
+  (let ((chars (coerce s 'list))
+        (substr '())
+        (longest-substr '()))
+    (dolist (ch chars longest-substr)
+      (let ((pos (position ch substr)))
+        (push ch substr)
+        (if pos
+            (setf substr (subseq substr 0 (1+ pos)))
+            (when (> (length substr) (length longest-substr))
+              (setf longest-substr substr)))))))
