@@ -1,0 +1,7 @@
+(defun median-of-sorted-arrays (list1 list2)
+  (let* ((combined (sort (append list1 list2) #'<))
+         (count (length combined))
+         (mid (/ (- count 1) 2)))
+    (if (evenp count)
+        (/ (+ (nth mid combined) (nth (+ mid 1) combined)) 2.0)
+        (nth mid combined))))
