@@ -20,6 +20,7 @@ MODEL = os.environ["MODEL"]
 #         ...,
 #         description="The entire first line of the original code block (before newline).",
 #     )
+
 #     end_line_old_block: str = Field(
 #         ...,
 #         description="The entire last line of the original code block (before newline).",
@@ -35,9 +36,7 @@ MODEL = os.environ["MODEL"]
 #         import hashlib
 
 #         # Convert the BlockOp instance to a string representation
-#         block_op_str = (
-#             f"{self.start_line_old_block}{self.end_line_old_block}{self.new_code}"
-#         )
+#         block_op_str = f"{self.first_line_of_original_block}{self.last_line_of_original_block}{self.new_code}"
 
 #         # Create a hash object and update it with the string representation
 #         hash_obj = hashlib.md5(block_op_str.encode())
@@ -54,7 +53,7 @@ MODEL = os.environ["MODEL"]
 #         sanitized_content = [line.replace("  ", "") for line in content]
 
 #         match_start_line = difflib.get_close_matches(
-#             self.start_line_old_block,
+#             self.first_line_of_original_block,
 #             sanitized_content,
 #             n=3,
 #             cutoff=cutoff,
@@ -69,7 +68,7 @@ MODEL = os.environ["MODEL"]
 #         start_line_index = sanitized_content.index(match_start_line)
 
 #         match_end_line = difflib.get_close_matches(
-#             self.end_line_old_block,
+#             self.last_line_of_original_block,
 #             sanitized_content[start_line_index:],
 #             n=3,
 #             cutoff=cutoff,
@@ -110,7 +109,18 @@ class BlockOpOnLineIdx(BaseModel):
     """Represents a replacement for a continuous code block.
     If the goal is to delete a code block, you can achieve it by setting the new_code to an empty string.
     If the goal is to insert a code block, you can do so by setting the start_line_idx and end_line_idx to the same line before or after the code block.
+
+    To maintain uniform indentation in a multi-line code block, make sure each new line follows the same indentation pattern.
     """
+
+    first_line_of_original_block: str = Field(
+        ...,
+        description="The first line of the original code block, (everything between newlines) including whitespaces.",
+    )
+    last_line_of_original_block: str = Field(
+        ...,
+        description="The last line of the original code block, (everything between newlines) including whitespaces.",
+    )
 
     start_line_idx: int = Field(
         ...,
@@ -121,10 +131,10 @@ class BlockOpOnLineIdx(BaseModel):
         ...,
         description="The line index of the last line of the original code block.",
     )
-    old_code: str = Field(..., description="The old code to be replaced.")
 
     new_code: str = Field(
-        ..., description="The new code to replace the original content."
+        ...,
+        description="The new code to replace the original content. Each  line follows the same indentation pattern as old code",
     )
 
     def calculate_hash(self):
@@ -158,7 +168,7 @@ class BlockOpOnLineIdx(BaseModel):
 
         new_code_block = self.new_code
 
-        content = f"""{file_path}\nOLD <<<<\n{existing_code_block}\n>>>> OLD\nNEW <<<<\n{new_code_block}\n >>>> NEW"""
+        content = f"""{file_path}\nOLD <<<<\n{existing_code_block}\n>>>> OLD\nNEW <<<<\n{new_code_block}\n>>>> NEW"""
 
         response = ""
         try:
@@ -179,7 +189,7 @@ class BlockOperations(BaseModel):
     )
 
 
-CREATE_BLOCKS_PROMPT = "Extract code blocks of interest within a file"
+CREATE_BLOCKS_PROMPT = "Extract and rewrite code blocks of interest within a file."
 create_blocks = action_from_model(
     BlockOperations,
     name="BlockOperations",

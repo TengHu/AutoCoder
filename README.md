@@ -2,7 +2,7 @@
 
 AutoCoder is a cutting-edge, experimental coding agent that leverages the power of LLM, [ActionWeaver](https://github.com/TengHu/ActionWeaver) for function calling & orchestration, [LLamaIndex](https://www.llamaindex.ai/) for Retrieval-Augmented Generation (RAG), [Langchain](https://www.langchain.com/) community and [Langsmith](https://www.langchain.com/langsmith) for observability.
 
-Please note that this demo app is not intended for production use.
+Please note that this demo app is not intended for production use. This bot is only looking at python files at the moment.
 
 ## Architecture 
 ![graph](docs/figures/workflow.png)
@@ -37,13 +37,24 @@ AutoCoder is capable of following tasks:
 - Use `notebooks/demo.ipynb` for a practical introduction and experimentation.
 
 ## Example Pull Requests
+
+https://docs.sweep.dev/about/examples
+- tricky bugs, have an code sample repo
+
+- INSTRUCTION: Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive.
+  - [PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r)
+- INSTRUCTION: Updating `autocoder/bot.py` to use AzureOpenAI instead of OpenAI client.
+  - [PR]
+- INSTRUCTION: - Implementing AutoCoder class in `AutoCoder.java` or Lisp.
+  - Too much context
+
 - Fixing to-dos.
 - Modifying README files.
 - Renaming functions.
 - Reading and interpreting LeetCode questions.
 - Implementing AutoCoder class in `AutoCoder.java` or Lisp.
 - Extracting classes from `autocoder/pydantic_models/file_ops.py` into new files.
-- Updating `autocoder/bot.py` to use AzureOpenAI.
+   - https://github.com/TengHu/AutoCoder/compare/main...aw_demo_bot_v12
 
 
 ## Tips
