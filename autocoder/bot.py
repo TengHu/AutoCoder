@@ -14,7 +14,7 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
-    def __init__(self, github_api, index, codebase):
+    def __init__(self, github_api, index, codebase, create_branch=True):
         self.github_api = github_api
 
         # self.client = trace_client(AzureOpenAI(
@@ -31,8 +31,9 @@ class AutoCoder:
         self.index = index
         self.codebase = codebase
 
-        msg = self.create_branch(f"aw_demo_bot")
-        print(f"[System] {msg}")
+        if create_branch:
+            msg = self.create_branch(f"aw_demo_bot")
+            print(f"[System] {msg}")
 
     def __call__(self, input: str):
         self.original_input = input
@@ -193,9 +194,6 @@ I've modified and updated the codebase according to your request in {self.github
 
 Is there anything else I can help you with?
 """
-
-    def search_code(self, query: str):
-        return self.github_api.search_code(query)
 
     @action(name="SummarizeChanges", stop=True, decorators=[traceable(run_type="tool")])
     def summarize_changes(self, msg: str):
