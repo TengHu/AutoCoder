@@ -83,30 +83,4 @@ class ImplementationPlan(BaseModel):
         description="A list of file modifications to be performed.",
     )
     file_creations: List[FileCreation] = Field(
-        default=[],
-        description="A list of file creation operations to be performed.",
-    )
-
-    @traceable(name="execute_implementation_plan", run_type="tool")
-    def execute(self, openai_client, index, codebase) -> str:
-        response = []
-        for operation in self.file_creations:
-            response.append(operation.execute(openai_client, codebase, index))
-
-        for operation in self.file_modifications:
-            response.append(operation.execute(openai_client, codebase, index))
-
-        return response
-
-
-CREATE_IMPLEMENTATION_PROMPT = """
-Extract essential details to create a implementation plan and implement it, you can modify existing files or create new files.
-Return an mapping from `implementationplan` to the plan object.
-"""
-create_implementation_plan = action_from_model(
-    ImplementationPlan,
-    name="ImplementationPlan",
-    description=CREATE_IMPLEMENTATION_PROMPT,
-    stop=True,
-    decorators=[traceable(name="create_implementation_plan", run_type="tool")],
-)
+        
