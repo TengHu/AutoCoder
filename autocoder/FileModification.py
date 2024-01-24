@@ -1,0 +1,2 @@
+class FileModification:
+    pass
