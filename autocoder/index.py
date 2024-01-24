@@ -37,10 +37,9 @@ class RepositoryIndex:
         files = self.codebase.list_files_in_bot_branch()
         self.files = [file for file in files if ".py" in file]
 
-        print(f"[RepositoryIndex] Indexing codebase {self.github_repository}")
+        # TODO: print messages when loading files
         self.documents = []
         for i, file in enumerate(self.files):
-            print(f"[RepositoryIndex] Reading {file}")
             text = self.codebase.read_file(file)
             self.documents.append(Document(text=text, metadata={"file": file}))
 

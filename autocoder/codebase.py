@@ -1,6 +1,7 @@
 from typing import List
 
 
+# TODO: print messages when Codebase class is instantiated or when a method is called
 class Codebase:
     def __init__(self, github_api):
         self.github_api = github_api
@@ -31,8 +32,9 @@ class Codebase:
 
         if filepath not in self.file2code:
             response = self.read_file_wrapper(filepath)
+
+            # TODO: throw an exception if the file is not found
             if f"File not found `{filepath}`" in response:
-                # raise Exception(f"{filepath} doesn't exist")
                 return None
             self.file2code[filepath] = response
 

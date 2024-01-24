@@ -11,6 +11,8 @@ from autocoder.telemetry import traceable
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
 
+# TODO: print messages when an execute method is called
+
 
 class FileOperation(BaseModel):
     """
