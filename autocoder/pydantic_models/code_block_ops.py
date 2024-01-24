@@ -113,14 +113,14 @@ class BlockOpOnLineIdx(BaseModel):
     To maintain uniform indentation in a multi-line code block, make sure each new line follows the same indentation pattern.
     """
 
-    first_line_of_original_block: str = Field(
-        ...,
-        description="The first line of the original code block, (everything between newlines) including whitespaces.",
-    )
-    last_line_of_original_block: str = Field(
-        ...,
-        description="The last line of the original code block, (everything between newlines) including whitespaces.",
-    )
+    # first_line_of_original_block: str = Field(
+    #     ...,
+    #     description="The first line of the original code block, (everything between newlines) including whitespaces.",
+    # )
+    # last_line_of_original_block: str = Field(
+    #     ...,
+    #     description="The last line of the original code block, (everything between newlines) including whitespaces.",
+    # )
 
     start_line_idx: int = Field(
         ...,
@@ -157,7 +157,7 @@ class BlockOpOnLineIdx(BaseModel):
         return "\n".join(content[self.start_line_idx : self.end_line_idx + 1])
 
     @traceable(name="execute_block_operation", run_type="tool")
-    def execute(self, file_path, openai_client, github_api, codebase) -> str:
+    def execute(self, file_path, openai_client, codebase) -> str:
         file_content = codebase.read_file(file_path)
         if not file_content:
             return f"{file_path} doesn't exist"
@@ -172,7 +172,7 @@ class BlockOpOnLineIdx(BaseModel):
 
         response = ""
         try:
-            response = github_api.update_file(content)
+            response = codebase.update_file(content)
         except Exception as e:
             response = f"Failed to update file {file_path} to replace old content {existing_code_block} with {new_code_block}. Original Exception: {e}."
         return response

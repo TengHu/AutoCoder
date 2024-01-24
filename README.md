@@ -38,23 +38,22 @@ AutoCoder is capable of following tasks:
 
 ## Example Pull Requests
 
-https://docs.sweep.dev/about/examples
-- tricky bugs, have an code sample repo
-
 - INSTRUCTION: Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive.
   - [PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r)
 - INSTRUCTION: Updating `autocoder/bot.py` to use AzureOpenAI instead of OpenAI client.
-  - [PR]
+  - [PR](https://github.com/TengHu/AutoCoder/pull/81), [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&tab=0&runtab=0&peek=1c3f8247-bc5f-4626-93c9-a1e7b776006c)
+- INSTRUCTION: Creating separate files for classes found in autocoder/pydantic_models/file_ops.py
+  - [PR](), [LangSmith traces]()
+
+
 - INSTRUCTION: - Implementing AutoCoder class in `AutoCoder.java` or Lisp.
   - Too much context
 
 - Fixing to-dos.
-- Modifying README files.
 - Renaming functions.
 - Reading and interpreting LeetCode questions.
 - Implementing AutoCoder class in `AutoCoder.java` or Lisp.
-- Extracting classes from `autocoder/pydantic_models/file_ops.py` into new files.
-   - https://github.com/TengHu/AutoCoder/compare/main...aw_demo_bot_v12
+  
 
 
 ## Tips

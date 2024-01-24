@@ -32,7 +32,7 @@ class FileModification(FileOperation):
     )
 
     @traceable(name="execute_file_modification", run_type="tool")
-    def execute(self, openai_client, github_api, codebase, index) -> str:
+    def execute(self, openai_client, codebase, index) -> str:
         input = (
             "<file>\n"
             + f"{self.file_path}\n"
@@ -78,7 +78,7 @@ class FileModification(FileOperation):
         unique_block_ops_list = list(unique_block_ops.values())
 
         return [
-            block.execute(self.file_path, openai_client, github_api, codebase)
+            block.execute(self.file_path, openai_client, codebase)
             for block in unique_block_ops_list
         ]
 
@@ -96,7 +96,7 @@ class FileCreation(FileOperation):
         name="execute_file_creation",
         run_type="tool",
     )
-    def execute(self, openai_client, github_api, codebase, index) -> str:
+    def execute(self, openai_client, codebase, index) -> str:
         input = (
             "<file>\n"
             + f"{self.file_path}\n"
@@ -133,7 +133,7 @@ class FileCreation(FileOperation):
 
         if isinstance(snippet, list):
             snippet = snippet[0]
-        return github_api.create_file(file_query=f"{self.file_path}\n {snippet.code}")
+        return codebase.create_file(file_query=f"{self.file_path}\n {snippet.code}")
 
 
 class ImplementationPlan(BaseModel):
@@ -156,17 +156,13 @@ class ImplementationPlan(BaseModel):
     )
 
     @traceable(name="execute_implementation_plan", run_type="tool")
-    def execute(self, openai_client, github_api, index, codebase) -> str:
+    def execute(self, openai_client, index, codebase) -> str:
         response = []
         for operation in self.file_creations:
-            response.append(
-                operation.execute(openai_client, github_api, codebase, index)
-            )
+            response.append(operation.execute(openai_client, codebase, index))
 
         for operation in self.file_modifications:
-            response.append(
-                operation.execute(openai_client, github_api, codebase, index)
-            )
+            response.append(operation.execute(openai_client, codebase, index))
 
         return response
 

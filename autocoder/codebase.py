@@ -14,6 +14,18 @@ class Codebase:
     def clear_cache(self):
         self.file2code = {}
 
+    def create_pull_request(self, pr_query):
+        return self.github_api.create_pull_request(pr_query)
+
+    def get_active_branch(self):
+        return self.github_api.active_branch
+
+    def get_issues(self):
+        return self.github_api.get_issues()
+
+    def create_branch(self, branch: str):
+        return self.github_api.create_branch(branch)
+
     def read_file(self, filepath):
         response = None
 
@@ -42,6 +54,15 @@ class Codebase:
                 response[file] = read_file_response
         return response
 
+    def create_file(self, file_query):
+        return self.github_api.create_file(file_query)
+
+    def update_file(self, content):
+        file_path = content.split("\n")[0]
+        self.file2code.pop(file_path, None)
+
+        return self.github_api.update_file(content)
+
     def map_char_idx_to_line_idx(self, file_path, start_char_idx, end_char_idx):
         content = self.github_api.read_file(file_path)
 
@@ -65,4 +86,5 @@ class Codebase:
                 end_line_idx = line_idx
                 break
 
-        return content_lines, start_line_idx, end_line_idx
+        # line index are 1-indexed
+        return content_lines, start_line_idx + 1, end_line_idx + 1

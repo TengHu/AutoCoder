@@ -48,9 +48,9 @@ github_api = GitHubAPIWrapper(
     github_app_private_key=os.environ["GITHUB_APP_PRIVATE_KEY"],
 )
 codebase = Codebase(github_api)
-index = RepositoryIndex(github_api, github_repository, codebase)
+index = RepositoryIndex(github_repository, codebase)
 
-autocoder = AutoCoder(github_api, index, codebase)
+autocoder = AutoCoder(index, codebase)
 
 print(
     bold_green_string("Welcome to AutoCoder! Enter your query or type 'exit' to leave")
