@@ -41,13 +41,12 @@ def stream_string_to_terminal(s, delay=0.1):
     print()  # for newline after streaming
 
 
-github_repository = "TengHu/auto_coder"
-github_api = GitHubAPIWrapper(
+langchain_github_api = GitHubAPIWrapper(
     github_repository=github_repository,
     github_app_id=os.environ["GITHUB_APP_ID"],
     github_app_private_key=os.environ["GITHUB_APP_PRIVATE_KEY"],
 )
-codebase = Codebase(github_api)
+codebase = Codebase(langchain_github_api)
 index = RepositoryIndex(github_repository, codebase)
 
 autocoder = AutoCoder(index, codebase)
