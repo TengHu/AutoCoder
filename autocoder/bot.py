@@ -17,12 +17,12 @@ class AutoCoder:
     def __init__(self, github_api, index, codebase, create_branch=True):
         self.github_api = github_api
 
-        # self.client = trace_client(AzureOpenAI(
-        #     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-        #     api_key=os.getenv("AZURE_OPENAI_KEY"),
-        #     api_version="2023-10-01-preview"
-        # ))
-        self.client = trace_client(OpenAI())
+        # self.client = trace_client(OpenAI())
+        self.client = trace_client(AzureOpenAI(
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+            api_key=os.getenv("AZURE_OPENAI_KEY"),
+            api_version="2023-10-01-preview"
+        ))
         self.system_message = {
             "role": "system",
             "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
