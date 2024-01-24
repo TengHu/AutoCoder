@@ -14,9 +14,7 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
-    def __init__(self, github_api, index, codebase, create_branch=True):
-        self.github_api = github_api
-
+    def __init__(self, index, codebase, create_branch=True):
         # self.client = trace_client(AzureOpenAI(
         #     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
         #     api_key=os.getenv("AZURE_OPENAI_KEY"),
@@ -49,7 +47,7 @@ class AutoCoder:
             model=MODEL,
             messages=self.messages,
             stream=False,
-            temperature=0.1,
+            temperature=1.0,
             actions=[
                 self.get_issues,
                 self.question_answer,
@@ -98,7 +96,7 @@ class AutoCoder:
         """
         Get a list of issues from the GitHub repo.
         """
-        response = self.github_api.get_issues()
+        response = self.codebase.get_issues()
         response = response.split("\n")
         return eval(response[1]) if len(response) > 1 else []
 
@@ -107,7 +105,7 @@ class AutoCoder:
         """
         Create a new Git branch.
         """
-        return self.github_api.create_branch(branch)
+        return self.codebase.create_branch(branch)
 
     @action(name="CreatePullRequest", decorators=[traceable(run_type="tool")])
     def create_pull_request(self, title: str, description: str):
@@ -119,8 +117,8 @@ class AutoCoder:
             description (str): The description of the Pull Request.
         """
         return (
-            f"Current branch {self.github_api.active_branch}\n"
-            + self.github_api.create_pull_request(pr_query=f"{title}\n {description}")
+            f"Current branch {self.codebase.get_active_branch()}\n"
+            + self.codebase.create_pull_request(pr_query=f"{title}\n {description}")
         )
 
     @action(
@@ -171,9 +169,7 @@ class AutoCoder:
 
         if isinstance(implementation_plan, list):
             implementation_plan = implementation_plan[0]
-        messages = implementation_plan.execute(
-            self.client, self.github_api, self.index, self.codebase
-        )
+        messages = implementation_plan.execute(self.client, self.index, self.codebase)
 
         files_updated = []
         files_created = []
@@ -187,7 +183,7 @@ class AutoCoder:
                 problems.append(msg)
 
         return f"""
-I've modified and updated the codebase according to your request in {self.github_api.active_branch} branch. Here's what I've done:
+I've modified and updated the codebase according to your request in {self.codebase.get_active_branch()} branch. Here's what I've done:
 - New files created: {files_created}
 - Existing files updated: {files_updated}
 - Problems encountered: {problems}

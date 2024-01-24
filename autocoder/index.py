@@ -25,8 +25,7 @@ class QueryResult:
 
 
 class RepositoryIndex:
-    def __init__(self, github_api, github_repository, codebase):
-        self.github_api = github_api
+    def __init__(self, github_repository, codebase):
         self.codebase = codebase
         self.github_repository = github_repository
 
