@@ -3,67 +3,67 @@ from typing import List
 
 # TODO: print messages when Codebase class is instantiated or when a method is called
 class Codebase:
-    def __init__(self, github_api):
-        self.github_api = github_api
-        self.file2code = {}
+    def __init__(self, langchain_github_api):
+6.         self.langchain_github_api = langchain_github_api
+7.         self.file2code = {}
 
-    def list_files_in_bot_branch(self):
-        content = self.github_api.list_files_in_bot_branch()
-        files = content.split("\n")[1:]
-        return files
+9.     def list_files_in_bot_branch(self):
+10.         content = self.langchain_github_api.list_files_in_bot_branch()
+11.         files = content.split("\n")[1:]
+12.         return files
 
-    def clear_cache(self):
-        self.file2code = {}
+14.     def clear_cache(self):
+15.         self.file2code = {}
 
-    def create_pull_request(self, pr_query):
-        return self.github_api.create_pull_request(pr_query)
+17.     def create_pull_request(self, pr_query):
+18.         return self.langchain_github_api.create_pull_request(pr_query)
 
-    def get_active_branch(self):
-        return self.github_api.active_branch
+20.     def get_active_branch(self):
+21.         return self.langchain_github_api.active_branch
 
-    def get_issues(self):
-        return self.github_api.get_issues()
+23.     def get_issues(self):
+24.         return self.langchain_github_api.get_issues()
 
-    def create_branch(self, branch: str):
-        return self.github_api.create_branch(branch)
+26.     def create_branch(self, branch: str):
+27.         return self.langchain_github_api.create_branch(branch)
 
-    def read_file(self, filepath):
-        response = None
+29.     def read_file(self, filepath):
+30.         response = None
 
-        if filepath not in self.file2code:
-            response = self.read_file_wrapper(filepath)
+32.         if filepath not in self.file2code:
+33.             response = self.read_file_wrapper(filepath)
 
-            # TODO: throw an exception if the file is not found
-            if f"File not found `{filepath}`" in response:
-                return None
-            self.file2code[filepath] = response
+35.             # TODO: throw an exception if the file is not found
+36.             if f"File not found `{filepath}`" in response:
+37.                 return None
+38.             self.file2code[filepath] = response
 
-        response = self.file2code[filepath]
+40.         response = self.file2code[filepath]
 
-        return response
+42.         return response
 
-    def read_file_wrapper(self, filepath):
-        response = self.github_api.read_file(filepath)
+44.     def read_file_wrapper(self, filepath):
+45.         response = self.langchain_github_api.read_file(filepath)
 
-        return response
+47.         return response
 
-    def read_files(self, files: List[str]) -> List[str]:
-        response = {}
-        for file in files:
-            read_file_response = self.read_file(file)
+49.     def read_files(self, files: List[str]) -> List[str]:
+50.         response = {}
+51.         for file in files:
+52.             read_file_response = self.read_file(file)
 
-            if read_file_response:
-                response[file] = read_file_response
-        return response
+54.             if read_file_response:
+55.                 response[file] = read_file_response
+56.         return response
 
-    def create_file(self, file_query):
-        return self.github_api.create_file(file_query)
+58.     def create_file(self, file_query):
+59.         return self.langchain_github_api.create_file(file_query)
 
-    def update_file(self, content):
-        file_path = content.split("\n")[0]
-        self.file2code.pop(file_path, None)
+61.     def update_file(self, content):
+62.         file_path = content.split("\n")[0]
+63.         self.file2code.pop(file_path, None)
 
-        return self.github_api.update_file(content)
+65.         return self.langchain_github_api.update_file(content)
 
     def map_char_idx_to_line_idx(self, file_path, start_char_idx, end_char_idx):
         content = self.github_api.read_file(file_path)
