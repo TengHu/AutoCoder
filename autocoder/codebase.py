@@ -36,7 +36,7 @@ class Codebase:
         response = None
 
         if filepath not in self.file2code:
-            response = self.read_file_wrapper(filepath)
+            response = langchain_github_api.read_file_wrapper(filepath)
 
             # TODO: throw an exception if the file is not found
             if f"File not found `{filepath}`" in response:
