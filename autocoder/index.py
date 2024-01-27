@@ -26,9 +26,12 @@ class QueryResult:
 
 
 class RepositoryIndex:
+    logger = logging.getLogger(__name__)
+
     def __init__(self, github_repository, codebase):
         self.codebase = codebase
         self.github_repository = github_repository
+        self.logger.info('Initializing RepositoryIndex with github_repository: ' + github_repository + ', codebase: ' + codebase)
 
         self.llm = OpenAI(model="gpt-3.5-turbo-16k", temperature=0.1, max_tokens=256)
         self.embed_model = OpenAIEmbedding(model="text-embedding-ada-002")
@@ -37,22 +40,17 @@ class RepositoryIndex:
     def setup(self):
         files = self.codebase.list_files_in_bot_branch()
         self.files = [file for file in files if ".py" in file]
+        self.logger.info('Files in bot branch: ' + str(self.files))
 
-        # TODO: print messages when loading files
         self.documents = []
         for i, file in enumerate(self.files):
             text = self.codebase.read_file(file)
             self.documents.append(Document(text=text, metadata={"file": file}))
 
-        code_splitter = CodeSplitter(
-            language="python", chunk_lines=40, chunk_lines_overlap=25, max_chars=1500
-        )
-        self.service_context = ServiceContext.from_defaults(
-            llm=self.llm, embed_model=self.embed_model, text_splitter=code_splitter
-        )
-        self.index = VectorStoreIndex.from_documents(
-            self.documents, service_context=self.service_context
-        )
+        code_splitter = CodeSplitter(language="python", chunk_lines=40, chunk_lines_overlap=25, max_chars=1500)
+        self.service_context = ServiceContext.from_defaults(llm=self.llm, embed_model=self.embed_model, text_splitter=code_splitter)
+        self.index = VectorStoreIndex.from_documents(self.documents, service_context=self.service_context)
+        self.logger.info('Index setup complete')
 
     def _retrieve_with_transform(self, query_bundle: QueryBundle):
         base_retriever = self.index.as_retriever(
