@@ -17,10 +17,10 @@ class Codebase:
         self.file2code = {}
 
     def create_pull_request(self, pr_query):
-        print('Creating a pull request.')
         return self.github_api.create_pull_request(pr_query)
 
     def get_active_branch(self):
+        print('Getting the active branch.')
         return self.github_api.active_branch
 
     def get_issues(self):
