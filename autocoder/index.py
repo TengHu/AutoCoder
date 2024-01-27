@@ -44,7 +44,7 @@ class RepositoryIndex:
             self.documents.append(Document(text=text, metadata={"file": file}))
 
         code_splitter = CodeSplitter(
-            language="python", chunk_lines=40, chunk_lines_overlap=25, max_chars=2000
+            language="python", chunk_lines=40, chunk_lines_overlap=25, max_chars=1500
         )
         self.service_context = ServiceContext.from_defaults(
             llm=self.llm, embed_model=self.embed_model, text_splitter=code_splitter

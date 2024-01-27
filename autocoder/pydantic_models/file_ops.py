@@ -7,11 +7,10 @@ from pydantic import BaseModel, Field
 from autocoder.pydantic_models.code_block_ops import create_blocks, create_code
 from autocoder.pydantic_models.context import gather_context
 from autocoder.telemetry import traceable
+from autocoder.utils import bright_cyan, format_debug_msg
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
-
-# TODO: print messages when an execute method is called
 
 
 class FileOperation(BaseModel):
@@ -34,31 +33,37 @@ class FileModification(FileOperation):
     )
 
     @traceable(name="execute_file_modification", run_type="tool")
-    def execute(self, openai_client, codebase, index) -> str:
-        input = (
-            "<file>\n"
-            + f"{self.file_path}\n"
-            + "</file>\n"
-            + "<user_instruction>\n"
-            + f"{self.detailed_instruction_to_do_with_old_code}\n"
-            + "</user_instruction>\n"
-        )
+    def execute(self, openai_client, codebase) -> str:
+        # input = (
+        #     "<file>\n"
+        #     + f"{self.file_path}\n"
+        #     + "</file>\n"
+        #     + "<user_instruction>\n"
+        #     + f"{self.detailed_instruction_to_do_with_old_code}\n"
+        #     + "</user_instruction>\n"
+        # )
 
-        context = gather_context(
-            input=input,
-            llm_client=openai_client,
-            index=index,
-            codebase=codebase,
-            add_line_index=True,
-        )
+        # context = gather_context(
+        #     input=input,
+        #     llm_client=openai_client,
+        #     index=index,
+        #     codebase=codebase,
+        #     add_line_index=True,
+        # )
+        print(format_debug_msg(f"Modifying file: {self.file_path}"))
+
+        context = codebase.read_file(self.file_path, add_line_index=True)
         messages = [
             {
                 "role": "user",
                 "content": (
-                    f"{context}\n"
-                    + f"<action_related_to_content_in: {self.file_path}>\n"
+                    f"<file {self.file_path}>\n"
+                    + f"{context}\n"
+                    + f"</file {self.file_path}>\n"
+                    + f"<action_related_to_codeblocks_in: {self.file_path}>\n"
                     + f"{self.detailed_instruction_to_do_with_old_code}\n"
-                    + f"</action_related_to_content_in: {self.file_path}>\n"
+                    + f"</action_related_to_codeblocks_in: {self.file_path}>\n"
+                    + "identify the code blocks of interest, then rewrite them\n"
                 ),
             },
         ]
@@ -66,6 +71,7 @@ class FileModification(FileOperation):
             openai_client,
             messages=messages,
             model=MODEL,
+            temperature=0.1,
             stream=False,
             force=True,
         )
@@ -79,10 +85,12 @@ class FileModification(FileOperation):
 
         unique_block_ops_list = list(unique_block_ops.values())
 
-        return [
-            block.execute(self.file_path, openai_client, codebase)
+        updates = [
+            block.create_block_update(openai_client, codebase)
             for block in unique_block_ops_list
         ]
+
+        return [codebase.update_file(update) for update in updates]
 
 
 class FileCreation(FileOperation):
@@ -107,6 +115,8 @@ class FileCreation(FileOperation):
             + f"{self.detailed_instruction_what_to_write_to_the_file}\n"
             + "</user_instruction>\n"
         )
+
+        print(format_debug_msg(f"Creating file: {self.file_path}"))
 
         context = gather_context(
             input=input,
@@ -150,7 +160,7 @@ class ImplementationPlan(BaseModel):
 
     file_modifications: List[FileModification] = Field(
         default=[],
-        description="A list of file modifications to be performed.",
+        description="A list of code block modifications to be performed.",
     )
     file_creations: List[FileCreation] = Field(
         default=[],
@@ -164,9 +174,26 @@ class ImplementationPlan(BaseModel):
             response.append(operation.execute(openai_client, codebase, index))
 
         for operation in self.file_modifications:
-            response.append(operation.execute(openai_client, codebase, index))
+            response.append(operation.execute(openai_client, codebase))
 
         return response
+
+    def pretty_print(self) -> str:
+        return (
+            f"{self.actions_to_take_on_codebase}\n"
+            + "\n".join(
+                [
+                    f"{bright_cyan(op.file_path)}:{op.detailed_instruction_to_do_with_old_code}\n"
+                    for op in self.file_modifications
+                ]
+            )
+            + "\n".join(
+                [
+                    f"{bright_cyan(op.file_path)}:{op.detailed_instruction_what_to_write_to_the_file}\n"
+                    for op in self.file_creations
+                ]
+            )
+        )
 
 
 CREATE_IMPLEMENTATION_PROMPT = """

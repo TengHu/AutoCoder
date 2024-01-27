@@ -1,5 +1,7 @@
 from typing import List
 
+from autocoder.telemetry import traceable
+
 
 # TODO: print messages when Codebase class is instantiated or when a method is called
 class Codebase:
@@ -11,6 +13,9 @@ class Codebase:
         content = self.github_api.list_files_in_bot_branch()
         files = content.split("\n")[1:]
         return files
+
+    def set_active_branch(self, branch):
+        return self.github_api.set_active_branch(branch)
 
     def clear_cache(self):
         self.file2code = {}
@@ -27,7 +32,7 @@ class Codebase:
     def create_branch(self, branch: str):
         return self.github_api.create_branch(branch)
 
-    def read_file(self, filepath):
+    def read_file(self, filepath, add_line_index=False):
         response = None
 
         if filepath not in self.file2code:
@@ -39,6 +44,11 @@ class Codebase:
             self.file2code[filepath] = response
 
         response = self.file2code[filepath]
+        if add_line_index:
+            lines = response.split("\n")
+            response = "\n".join(
+                [f"{line_idx}. " + lines[line_idx] for line_idx in range(0, len(lines))]
+            )
 
         return response
 
@@ -59,6 +69,7 @@ class Codebase:
     def create_file(self, file_query):
         return self.github_api.create_file(file_query)
 
+    @traceable(name="update_file_in_codebase", run_type="tool")
     def update_file(self, content):
         file_path = content.split("\n")[0]
         self.file2code.pop(file_path, None)
@@ -88,5 +99,4 @@ class Codebase:
                 end_line_idx = line_idx
                 break
 
-        # line index are 1-indexed
-        return content_lines, start_line_idx + 1, end_line_idx + 1
+        return content_lines, start_line_idx, end_line_idx

@@ -5,6 +5,7 @@ from actionweaver.actions.factories.pydantic_model_to_action import action_from_
 from pydantic import BaseModel, Field
 
 from autocoder.telemetry import traceable
+from autocoder.utils import colored_diff, format_debug_msg
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
@@ -107,10 +108,10 @@ MODEL = os.environ["MODEL"]
 
 class BlockOpOnLineIdx(BaseModel):
     """Represents a replacement for a continuous code block.
-    If the goal is to delete a code block, you can achieve it by setting the new_code to an empty string.
-    If the goal is to insert a code block, you can do so by setting the start_line_idx and end_line_idx to the same line before or after the code block.
+    If the goal is to delete a code block, you can do so by setting the start_line_idx and end_line_idx to the code block you want to delete.
+    If the goal is to insert a code block, you can do so by setting the start_line_idx and end_line_idx to the same line before or after you want to insert the code.
 
-    To maintain uniform indentation in a multi-line code block, make sure each new line follows the same indentation pattern.
+    Code block MUST be completed in terms of function, class, or if/else statement.
     """
 
     # first_line_of_original_block: str = Field(
@@ -122,6 +123,8 @@ class BlockOpOnLineIdx(BaseModel):
     #     description="The last line of the original code block, (everything between newlines) including whitespaces.",
     # )
 
+    file_path: str = Field(..., description="The path to the file that will be changed")
+
     start_line_idx: int = Field(
         ...,
         description="The line index of the first line of the original code block.",
@@ -132,10 +135,20 @@ class BlockOpOnLineIdx(BaseModel):
         description="The line index of the last line of the original code block.",
     )
 
-    new_code: str = Field(
+    # The `instruction_to_rewrite_code_block` field in the `BlockOpOnLineIdx` class represents the
+    # instruction to rewrite the code block. It provides guidance on how the code block should be
+    # modified or replaced. This instruction can include information on what changes should be made,
+    # what code should be added or removed, and any other specific instructions for rewriting the code
+    # block.
+    instruction_to_rewrite_code_block: str = Field(
         ...,
-        description="The new code to replace the original content. Each  line follows the same indentation pattern as old code",
+        description="The instruction to rewrite the code block.",
     )
+
+    # new_code: str = Field(
+    #     ...,
+    #     description="The new code to replace the original content. Each  line follows the same indentation pattern as old code",
+    # )
 
     def calculate_hash(self):
         """
@@ -144,7 +157,7 @@ class BlockOpOnLineIdx(BaseModel):
         import hashlib
 
         # Convert the BlockOp instance to a string representation
-        block_op_str = f"{self.start_line_idx}{self.end_line_idx}{self.new_code}"
+        block_op_str = f"{self.file_path}{self.start_line_idx}{self.end_line_idx}"
 
         # Create a hash object and update it with the string representation
         hash_obj = hashlib.md5(block_op_str.encode())
@@ -156,26 +169,51 @@ class BlockOpOnLineIdx(BaseModel):
         content = content.split("\n")
         return "\n".join(content[self.start_line_idx : self.end_line_idx + 1])
 
-    @traceable(name="execute_block_operation", run_type="tool")
-    def execute(self, file_path, openai_client, codebase) -> str:
-        file_content = codebase.read_file(file_path)
+    @traceable(name="create_block_update", run_type="tool")
+    def create_block_update(self, openai_client, codebase) -> str:
+        file_content = codebase.read_file(self.file_path)
         if not file_content:
-            return f"{file_path} doesn't exist"
+            return f"{self.file_path} doesn't exist"
 
         existing_code_block = self.find_block(file_content)
         if not existing_code_block:
-            return f"Failed to find the code block in {file_path}."
+            return f"Failed to find the code block in {self.file_path}."
 
-        new_code_block = self.new_code
+        messages = [
+            {
+                "role": "system",
+                "content": "Modify old code block based on the instruction and return in JSON. Add the leading whitespace to the new code block the same as the old code block.",
+            },
+            {
+                "role": "user",
+                "content": (
+                    "<old_code_block>\n"
+                    + f"{existing_code_block}\n"
+                    + "</old_code_block>\n"
+                    + f"<instruction_to_rewrite_the_code_block>\n"
+                    + f"{self.instruction_to_rewrite_code_block}\n"
+                    + "</instruction_to_rewrite_the_code_block>\n"
+                ),
+            },
+        ]
+        snippet = create_code.invoke(
+            openai_client,
+            messages=messages,
+            model=MODEL,
+            temperature=0.0,
+            stream=False,
+            force=True,
+        )
 
-        content = f"""{file_path}\nOLD <<<<\n{existing_code_block}\n>>>> OLD\nNEW <<<<\n{new_code_block}\n>>>> NEW"""
+        if isinstance(snippet, list):
+            snippet = snippet[0]
 
-        response = ""
-        try:
-            response = codebase.update_file(content)
-        except Exception as e:
-            response = f"Failed to update file {file_path} to replace old content {existing_code_block} with {new_code_block}. Original Exception: {e}."
-        return response
+        new_code_block = snippet.code
+
+        print(format_debug_msg(f"Committing code change to {self.file_path}"))
+        print(colored_diff(existing_code_block, new_code_block))
+
+        return f"""{self.file_path}\nOLD <<<<\n{existing_code_block}\n>>>> OLD\nNEW <<<<\n{new_code_block}\n>>>> NEW"""
 
 
 class BlockOperations(BaseModel):
@@ -210,7 +248,7 @@ class CodeSnippet(BaseModel):
     )
 
 
-CREATE_CODE_PROMPT = "Extract code block"
+CREATE_CODE_PROMPT = "Rewrite code block"
 create_code = action_from_model(
     CodeSnippet,
     name="CodeSnippet",

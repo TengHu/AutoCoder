@@ -6,6 +6,7 @@ from actionweaver.actions.factories.pydantic_model_to_action import action_from_
 from pydantic import BaseModel, Field
 
 from autocoder.telemetry import traceable
+from autocoder.utils import format_debug_msg
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
