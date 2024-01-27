@@ -41,23 +41,17 @@ class Codebase:
         return self.github_api.create_branch(branch)
 
     def read_file(self, filepath, add_line_index=False):
+        print('Calling method: read_file')
         response = None
-
         if filepath not in self.file2code:
             response = self.read_file_wrapper(filepath)
-
-            # TODO: throw an exception if the file is not found
-            if f"File not found `{filepath}`" in response:
-                return None
+            if f'File not found `{filepath}`' in response:
+                raise FileNotFoundError(f'File not found `{filepath}`')
             self.file2code[filepath] = response
-
         response = self.file2code[filepath]
         if add_line_index:
-            lines = response.split("\n")
-            response = "\n".join(
-                [f"{line_idx}. " + lines[line_idx] for line_idx in range(0, len(lines))]
-            )
-
+            lines = response.split('\n')
+            response = '\n'.join([f'{line_idx}. ' + lines[line_idx] for line_idx in range(0, len(lines))])
         return response
 
     def read_file_wrapper(self, filepath):
