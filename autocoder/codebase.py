@@ -15,7 +15,7 @@ class Codebase:
         return files
 
     def set_active_branch(self, branch):
-        return self.github_api.set_active_branch(branch)
+        return self.langchain_github_api.set_active_branch(branch)
 
     def clear_cache(self):
         self.file2code = {}
