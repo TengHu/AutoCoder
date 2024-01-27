@@ -37,6 +37,7 @@ class Codebase:
         return self.github_api.get_issues()
 
     def create_branch(self, branch: str):
+        print(f'create_branch called with parameters {branch}')
         return self.github_api.create_branch(branch)
 
     def read_file(self, filepath, add_line_index=False):
