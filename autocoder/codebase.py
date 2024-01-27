@@ -33,6 +33,7 @@ class Codebase:
         return self.github_api.active_branch
 
     def get_issues(self):
+        print('Calling method: get_issues')
         return self.github_api.get_issues()
 
     def create_branch(self, branch: str):
