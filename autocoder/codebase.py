@@ -10,7 +10,7 @@ class Codebase:
         self.file2code = {}
 
     def list_files_in_bot_branch(self):
-        content = self.github_api.list_files_in_bot_branch()
+        content = self.langchain_github_api.list_files_in_bot_branch()
         files = content.split("\n")[1:]
         return files
 
