@@ -20,14 +20,11 @@ def traceable(*args, **kwargs):
 
 
 def trace_client(client):
-    if os.environ.get("LANGCHAIN_API_KEY"):
-        client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
-            client.chat.completions.create
-        )
-        client = patch(client)
-        client.chat.completions.create = traceable(
-            name="chat_completion_create", run_type="llm"
-        )(client.chat.completions.create)
-        return client
-    else:
-        return client
+    client.chat.completions.create = traceable(name="llm_call", run_type="llm")(
+        client.chat.completions.create
+    )
+    client = patch(client)
+    client.chat.completions.create = traceable(
+        name="chat_completion_create", run_type="llm"
+    )(client.chat.completions.create)
+    return client
