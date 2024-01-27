@@ -24,7 +24,7 @@ class Codebase:
         return self.langchain_github_api.create_pull_request(pr_query)
 
     def get_active_branch(self):
-        return self.github_api.active_branch
+        return self.langchain_github_api.active_branch
 
     def get_issues(self):
         return self.github_api.get_issues()
