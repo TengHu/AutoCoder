@@ -30,7 +30,7 @@ class Codebase:
         return self.langchain_github_api.get_issues()
 
     def create_branch(self, branch: str):
-        return self.github_api.create_branch(branch)
+        return self.langchain_github_api.create_branch(branch)
 
     def read_file(self, filepath, add_line_index=False):
         response = None
