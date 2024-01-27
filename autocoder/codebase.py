@@ -17,6 +17,7 @@ class Codebase:
         return files
 
     def set_active_branch(self, branch):
+        print('Calling method: set_active_branch')
         return self.github_api.set_active_branch(branch)
 
     def clear_cache(self):
