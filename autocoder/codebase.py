@@ -74,6 +74,7 @@ class Codebase:
         return self.github_api.update_file(content)
 
     def map_char_idx_to_line_idx(self, file_path, start_char_idx, end_char_idx):
+        print(f'Mapping character indices to line indices for file: {file_path}.')
         content = self.github_api.read_file(file_path)
 
         # Split the content into lines
