@@ -38,23 +38,28 @@ AutoCoder is capable of following tasks:
 
 ## Example Pull Requests
 
-1. Instruction: Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive. ([PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r))
+1. Instruction: [Code Change] Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive. 
+
+([PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r))
 
 2. Instruction: Updating `autocoder/bot.py` to use AzureOpenAI instead of OpenAI client. ([PR](https://github.com/TengHu/AutoCoder/pull/81), [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&tab=0&runtab=0&peek=1c3f8247-bc5f-4626-93c9-a1e7b776006c))
+
 3. Instruction: 
 Move all classes from autocoder/pydantic_models/file_ops.py into separate files, one for each class. Remove the code in original file.
 ([PR](https://github.com/TengHu/AutoCoder/pull/85),  [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&tab=0&runtab=0&peek=fecc131a-0a95-49a2-9ec3-b8bc503efe40))
-4. Instruction: 
-Create a new file named autocoder/test_codebase.py. In this file, write unit tests for Codebase class using pytest.  For each method in the Codebase class, there should be a corresponding test method in test_codebase.py, and within each test method, the details of the test case should be implemented.
+
+5. Instruction: 
+Implement all TODO items in autocoder/codebase.py
+[PR](https://github.com/TengHu/AutoCoder/pull/89)[LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&peek=87292036-4ed2-4a65-9232-aa9553f5555f)
 
 
-- Renaming functions.
+6. Instruction:
+Code Change: rename every `github_api` variable to `langchain_github_api` within the codebase. Do not remove anything else.
 
-- Fixing to-dos.
 
-- Reading and interpreting LeetCode questions.
-  
-- Implementing AutoCoder class in Scheme, a dialect of Lisp,
+Instruction: Rewrite the AutoCoder class into Scheme, a dialect of Lisp. This rewritten code should be placed in a file named autocoder.sch
+
+
 
 ## Tips
 

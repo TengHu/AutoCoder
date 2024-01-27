@@ -52,6 +52,8 @@ index = RepositoryIndex(github_repository, codebase)
 
 autocoder = AutoCoder(index, codebase)
 
+print(os.environ["MODEL"])
+
 print(
     bold_green_string("Welcome to AutoCoder! Enter your query or type 'exit' to leave")
 )

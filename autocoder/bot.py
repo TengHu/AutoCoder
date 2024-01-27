@@ -3,24 +3,27 @@ from typing import List
 
 from actionweaver import action
 from actionweaver.utils.tokens import TokenUsageTracker
-from openai import OpenAI
+from openai import AzureOpenAI, OpenAI
 
 from autocoder.pydantic_models.context import create_context, gather_context
 from autocoder.pydantic_models.file_ops import create_implementation_plan
 from autocoder.telemetry import trace_client, traceable
+from autocoder.utils import format_debug_msg
 
 assert os.environ["MODEL"]
 MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
-    def __init__(self, index, codebase, create_branch=True):
-        # self.client = trace_client(AzureOpenAI(
-        #     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-        #     api_key=os.getenv("AZURE_OPENAI_KEY"),
-        #     api_version="2023-10-01-preview"
-        # ))
-        self.client = trace_client(OpenAI())
+    def __init__(self, index, codebase, create_branch=False):
+        self.client = trace_client(
+            AzureOpenAI(
+                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+                api_key=os.getenv("AZURE_OPENAI_KEY"),
+                api_version="2023-10-01-preview",
+            )
+        )
+        # self.client = trace_client(OpenAI())
         self.system_message = {
             "role": "system",
             "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
@@ -30,8 +33,7 @@ class AutoCoder:
         self.codebase = codebase
 
         if create_branch:
-            msg = self.create_branch(f"aw_demo_bot")
-            print(f"[System] {msg}")
+            self.create_branch("aw_demo_bot")
 
     def __call__(self, input: str):
         self.original_input = input
@@ -53,10 +55,18 @@ class AutoCoder:
                 self.question_answer,
                 self.create_pull_request,
                 self.plan_code_change,
+                self.create_branch,
+                self.list_all_files,
+                self.set_active_branch,
+                self.read_file,
             ],
             orch={
                 self.plan_code_change.name: self.summarize_changes,
                 self.create_pull_request.name: None,
+                self.create_branch.name: None,
+                self.list_all_files.name: None,
+                self.set_active_branch.name: None,
+                self.read_file.name: None,
             },
             token_usage_tracker=TokenUsageTracker(500),
         )
@@ -69,9 +79,34 @@ class AutoCoder:
         self.messages.append({"role": "assistant", "content": content})
         return content
 
+    @action(name="CreateBranch", decorators=[traceable(run_type="tool")])
+    def create_branch(self, branch: str):
+        """
+        Create a new Git branch.
+        """
+
+        print(format_debug_msg(f"Creating branch: {branch}"))
+        return self.codebase.create_branch(branch)
+
+    @action(name="SetActiveBranch", decorators=[traceable(run_type="tool")])
+    def set_active_branch(self, branch: str):
+        """
+        Set the active Git branch.
+        """
+
+        print(format_debug_msg(f"Setting active branch: {branch}"))
+        return self.codebase.set_active_branch(branch)
+
+    @action(name="ListAllFiles", decorators=[traceable(run_type="tool")])
+    def list_all_files(self):
+        """List all files in the bot branch."""
+        return self.codebase.list_files_in_bot_branch()
+
     @action(name="QuestionAnswer", decorators=[traceable(run_type="tool")])
     def question_answer(self, rewritten_query: str, keywords: List[str]):
         """Answer questions about the codebase"""
+
+        print(format_debug_msg(f"Answering question: {rewritten_query}"))
 
         context = gather_context(
             " ".join(keywords), self.client, self.index, self.codebase
@@ -121,6 +156,18 @@ class AutoCoder:
             + self.codebase.create_pull_request(pr_query=f"{title}\n {description}")
         )
 
+    @action(name="ReadFile", stop=True, decorators=[traceable(run_type="tool")])
+    def read_file(self, filepath: str, start_line: int = -1, end_line: int = -1):
+        """
+        Read a file from the codebase.
+        """
+        content = self.codebase.read_file(filepath)
+
+        if start_line != -1 and end_line != -1:
+            content = "\n".join(content.split("\n")[start_line - 1 : end_line])
+
+        return content
+
     @action(
         "PlanAndImplementCodeChange",
         stop=False,
@@ -131,17 +178,13 @@ class AutoCoder:
         Plan and implement code changes based on a given description.
         """
 
+        print(format_debug_msg(f"Planning code change: {input}"))
+
         context = gather_context(input, self.client, self.index, self.codebase)
 
         files = [
             file for file in self.codebase.list_files_in_bot_branch() if ".py" in file
         ]
-
-        """ 
-        <files>
-        
-        </files>
-        """
 
         messages = [
             {
@@ -169,6 +212,12 @@ class AutoCoder:
 
         if isinstance(implementation_plan, list):
             implementation_plan = implementation_plan[0]
+
+        print(
+            format_debug_msg(
+                f"Implementation plan created: {implementation_plan.pretty_print()}"
+            )
+        )
         messages = implementation_plan.execute(self.client, self.index, self.codebase)
 
         files_updated = []
