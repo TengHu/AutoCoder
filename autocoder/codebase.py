@@ -21,6 +21,7 @@ class Codebase:
         return self.github_api.set_active_branch(branch)
 
     def clear_cache(self):
+        print('Calling method: clear_cache')
         self.file2code = {}
 
     def create_pull_request(self, pr_query):
