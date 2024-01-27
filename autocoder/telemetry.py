@@ -11,12 +11,7 @@ os.environ["LANGCHAIN_PROJECT"] = project_name  # Optional: "default" is used if
 assert os.environ["LANGCHAIN_API_KEY"]
 
 
-def identity_decorator(func):
-    def wrapper(*args, **kwargs):
-        result = func(*args, **kwargs)
-        return result
 
-    return wrapper
 
 
 def traceable(*args, **kwargs):
