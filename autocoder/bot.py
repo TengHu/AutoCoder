@@ -20,7 +20,7 @@ class AutoCoder:
             api_key=os.getenv("AZURE_OPENAI_KEY"),
             api_version="2023-10-01-preview"
         ))
-        self.client = trace_client(OpenAI())
+        #self.client = trace_client(OpenAI())
         self.system_message = {
             "role": "system",
             "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
