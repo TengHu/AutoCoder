@@ -74,7 +74,7 @@ class Codebase:
         file_path = content.split("\n")[0]
         self.file2code.pop(file_path, None)
 
-        return self.github_api.update_file(content)
+        return self.langchain_github_api.update_file(content)
 
     def map_char_idx_to_line_idx(self, file_path, start_char_idx, end_char_idx):
         content = self.github_api.read_file(file_path)
