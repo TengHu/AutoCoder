@@ -6,6 +6,7 @@ class Codebase:
     def __init__(self, github_api):
         self.github_api = github_api
         self.file2code = {}
+        print('Codebase class instantiated with GitHub API.')
 
     def list_files_in_bot_branch(self):
         content = self.github_api.list_files_in_bot_branch()
