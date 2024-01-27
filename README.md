@@ -4,46 +4,11 @@ AutoCoder is a cutting-edge, experimental coding agent that leverages the power 
 
 Please note that this demo app is not intended for production use. This bot is only looking at python files at the moment.
 
-## Architecture 
-![graph](docs/figures/workflow.png)
-
-## Capabilities
-AutoCoder is capable of following tasks:
--  GetIssues
-    - **Description**: Fetches a list of issues from the GitHub repository.
-    - **Example Question**: "Give me all active issues."
-- QuestionAnswer
-    - **Description**: Answers questions about the codebase.
-    - **Example Question**: "How is the AutoCoder class implemented?"
-- CreatePullRequest
-    - **Description**: Creates a new Pull Request in a Git repository.
-    - **Example Question**: "Create a PR."
-- PlanAndImplementCodeChange
-    - **Description**: Plans and implements code changes based on a given description.
-    - **Example Question**: "Update the `autocoder/bot.py` to use AzureOpenAI instead of OpenAI."
-
-## Local Setup Guide
-
-### Step 1: Create a GitHub App
-- Follow the instructions on creating a GitHub App on [GitHub's documentation](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps#building-a-github-app).
-- Grant the Autocoder app Read and Write access in [GitHub App settings](https://github.com/settings/installations). It should have access to administration, code, discussions, issues, pull requests, and repository projects for the intended repository.
-
-### Step 2: Set Up Environment Variables
-- **GitHub API Access**: Set `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`.
-- **OpenAI Access**: Set `OPENAI_API_KEY` and specify the model in `MODEL`, e.g., `MODEL=gpt-4-0613`.
-- **Langchain Monitoring** (Optional): Set `LANGCHAIN_API_KEY`.
-
-### Step 3: Explore the Demo Notebook or main.py
-- Use `notebooks/demo.ipynb` for a practical introduction and experimentation.
 
 ## Example Pull Requests
+All examples are executed using the Azure gpt-4-32k model
 
-all demo is using from azure gpt4
-
-(issue/TODO, PR, you comment, PR closed, langsmith traces)
-
-
-**Prompt**: [Code Change] Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive. 
+**Prompt**: [Code Change] Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive.
 ([PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r))
 
 
@@ -75,6 +40,39 @@ all demo is using from azure gpt4
 
 ([PR](https://github.com/TengHu/AutoCoder/pull/101), [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&tab=0&peek=0cdd3a59-dc89-4c3a-b7a8-81545edbe4fa))
 
+
+
+## Architecture 
+![graph](docs/figures/workflow.png)
+
+## Capabilities
+AutoCoder is capable of following tasks:
+-  GetIssues
+    - **Description**: Fetches a list of issues from the GitHub repository.
+    - **Example Question**: "Give me all active issues."
+- QuestionAnswer
+    - **Description**: Answers questions about the codebase.
+    - **Example Question**: "How is the AutoCoder class implemented?"
+- CreatePullRequest
+    - **Description**: Creates a new Pull Request in a Git repository.
+    - **Example Question**: "Create a PR."
+- PlanAndImplementCodeChange
+    - **Description**: Plans and implements code changes based on a given description.
+    - **Example Question**: "Update the `autocoder/bot.py` to use AzureOpenAI instead of OpenAI."
+
+## Local Setup Guide
+
+### Step 1: Create a GitHub App
+- Follow the instructions on creating a GitHub App on [GitHub's documentation](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps#building-a-github-app).
+- Grant the Autocoder app Read and Write access in [GitHub App settings](https://github.com/settings/installations). It should have access to administration, code, discussions, issues, pull requests, and repository projects for the intended repository.
+
+### Step 2: Set Up Environment Variables
+- **GitHub API Access**: Set `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`.
+- **OpenAI Access**: Set `OPENAI_API_KEY` and specify the model in `MODEL`, e.g., `MODEL=gpt-4-0613`.
+- **Langchain Monitoring** (Optional): Set `LANGCHAIN_API_KEY`.
+
+### Step 3: Explore the Demo Notebook or main.py
+- Use `notebooks/demo.ipynb` for a practical introduction and experimentation.
 
 
 ## Tips
