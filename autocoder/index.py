@@ -78,54 +78,40 @@ class RepositoryIndex:
         return processed_nodes
 
     def query(self, question: str):
+        self.logger.info('Query: ' + question)
+
         query_bundle = QueryBundle(question)
         retrieved_nodes = self._retrieve_with_transform(query_bundle)
+        self.logger.info('Retrieved nodes after transform: ' + str(retrieved_nodes))
+
         retrieved_nodes = self._rerank(retrieved_nodes, query_bundle)
+        self.logger.info('Retrieved nodes after rerank: ' + str(retrieved_nodes))
+
         retrieved_nodes = self._prune(retrieved_nodes, top_k=5)
+        self.logger.info('Retrieved nodes after prune: ' + str(retrieved_nodes))
 
         nodes_dict = [node.to_dict() for node in retrieved_nodes]
 
-        # Parse nodes into query results
         query_results = []
         for node in nodes_dict:
-            query_results.append(
-                QueryResult(
-                    id=node["node"]["id_"],
-                    file_path=node["node"]["metadata"]["file"],
-                    content=node["node"]["text"],
-                    score=node["score"],
-                    start_char_idx=node["node"]["start_char_idx"],
-                    end_char_idx=node["node"]["end_char_idx"],
-                    metadata={},
-                )
-            )
+            query_results.append(QueryResult(id=node["node"]["id_"], file_path=node["node"]["metadata"]["file"], content=node["node"]["text"], score=node["score"], start_char_idx=node["node"]["start_char_idx"], end_char_idx=node["node"]["end_char_idx"], metadata={}))
 
-        # merge code snippets
+        self.logger.info('Query results: ' + str(query_results))
+
         snippet_by_file = defaultdict(list)
         for qr in query_results:
             snippet_by_file[qr.file_path].append((qr.start_char_idx, qr.end_char_idx))
 
         final_query_results = []
         for file_path, snippets in snippet_by_file.items():
-            # merge snippets
             snippet_by_file[file_path] = self._merge_intervals(snippets, margin=25)
 
             file_content = self.codebase.read_file(file_path)
             for processed_snippet in snippet_by_file[file_path]:
-                # drop small snippet
                 if processed_snippet[1] - processed_snippet[0] > 25:
-                    final_query_results.append(
-                        QueryResult(
-                            id=f"{file_path}_{processed_snippet[0]}_{processed_snippet[1]}",
-                            file_path=file_path,
-                            content=file_content[
-                                processed_snippet[0] : processed_snippet[1]
-                            ],
-                            start_char_idx=processed_snippet[0],
-                            end_char_idx=processed_snippet[1],
-                            metadata={},
-                        )
-                    )
+                    final_query_results.append(QueryResult(id=f"{file_path}_{processed_snippet[0]}_{processed_snippet[1]}", file_path=file_path, content=file_content[processed_snippet[0] : processed_snippet[1]], start_char_idx=processed_snippet[0], end_char_idx=processed_snippet[1], metadata={}))
+
+        self.logger.info('Final query results: ' + str(final_query_results))
         return final_query_results
 
     def _rerank(self, nodes, query_bundle):
