@@ -28,6 +28,7 @@ class Codebase:
         return self.github_api.get_issues()
 
     def create_branch(self, branch: str):
+        print(f'Creating a new branch: {branch}.')
         return self.github_api.create_branch(branch)
 
     def read_file(self, filepath):
