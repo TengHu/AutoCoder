@@ -32,6 +32,7 @@ class Codebase:
         return self.github_api.create_branch(branch)
 
     def read_file(self, filepath):
+        print(f'Reading file: {filepath}.')
         response = None
 
         if filepath not in self.file2code:
@@ -39,7 +40,7 @@ class Codebase:
 
             # TODO: throw an exception if the file is not found
             if f"File not found `{filepath}`" in response:
-                return None
+                raise FileNotFoundError(f'File not found: {filepath}')
             self.file2code[filepath] = response
 
         response = self.file2code[filepath]
