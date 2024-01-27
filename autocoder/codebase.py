@@ -36,8 +36,8 @@ class Codebase:
             response = self.read_file_wrapper(filepath)
 
             # TODO: throw an exception if the file is not found
-            if f"File not found `{filepath}`" in response:
-                return None
+if f"File not found `{filepath}`" in response:
+    return None
             self.file2code[filepath] = response
 
         response = self.file2code[filepath]
