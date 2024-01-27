@@ -48,6 +48,7 @@ class Codebase:
         return response
 
     def read_file_wrapper(self, filepath):
+        print(f'Reading file (wrapper): {filepath}.')
         response = self.github_api.read_file(filepath)
 
         return response
