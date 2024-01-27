@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+logging.basicConfig(filename='logfile.log', level=logging.INFO, filemode='a')
 from typing import Optional
 
 from llama_index import Document, ServiceContext, VectorStoreIndex
