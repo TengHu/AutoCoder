@@ -20,10 +20,7 @@ def identity_decorator(func):
 
 
 def traceable(*args, **kwargs):
-    if os.environ.get("LANGCHAIN_API_KEY"):
-        return _traceable(*args, **kwargs)
-    else:
-        return identity_decorator
+    return _traceable(*args, **kwargs)
 
 
 def trace_client(client):
