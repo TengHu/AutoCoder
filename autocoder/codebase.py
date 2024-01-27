@@ -29,6 +29,7 @@ class Codebase:
         return self.github_api.create_pull_request(pr_query)
 
     def get_active_branch(self):
+        print('Calling method: get_active_branch')
         return self.github_api.active_branch
 
     def get_issues(self):
