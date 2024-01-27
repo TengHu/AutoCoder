@@ -53,7 +53,7 @@ class Codebase:
         return response
 
     def read_file_wrapper(self, filepath):
-        response = self.github_api.read_file(filepath)
+        response = self.langchain_github_api.read_file(filepath)
 
         return response
 
