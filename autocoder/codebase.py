@@ -60,10 +60,10 @@ class Codebase:
         return response
 
     def read_files(self, files: List[str]) -> List[str]:
+        print('Calling method: read_files')
         response = {}
         for file in files:
             read_file_response = self.read_file(file)
-
             if read_file_response:
                 response[file] = read_file_response
         return response
