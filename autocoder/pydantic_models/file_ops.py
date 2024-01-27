@@ -22,14 +22,4 @@ MODEL = os.environ["MODEL"]
 
 
 
-CREATE_IMPLEMENTATION_PROMPT = """
-Extract essential details to create a implementation plan and implement it, you can modify existing files or create new files.
-Return an mapping from `implementationplan` to the plan object.
-"""
-create_implementation_plan = action_from_model(
-    ImplementationPlan,
-    name="ImplementationPlan",
-    description=CREATE_IMPLEMENTATION_PROMPT,
-    stop=True,
-    decorators=[traceable(name="create_implementation_plan", run_type="tool")],
-)
+
