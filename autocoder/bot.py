@@ -15,11 +15,11 @@ MODEL = os.environ["MODEL"]
 
 class AutoCoder:
     def __init__(self, index, codebase, create_branch=True):
-        # self.client = trace_client(AzureOpenAI(
-        #     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-        #     api_key=os.getenv("AZURE_OPENAI_KEY"),
-        #     api_version="2023-10-01-preview"
-        # ))
+        self.client = trace_client(AzureOpenAI(
+            azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+            api_key=os.getenv("AZURE_OPENAI_KEY"),
+            api_version="2023-10-01-preview"
+        ))
         self.client = trace_client(OpenAI())
         self.system_message = {
             "role": "system",
