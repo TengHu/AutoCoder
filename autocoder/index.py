@@ -53,16 +53,17 @@ class RepositoryIndex:
         self.logger.info('Index setup complete')
 
     def _retrieve_with_transform(self, query_bundle: QueryBundle):
-        base_retriever = self.index.as_retriever(
-            similarity_top_k=50, response_mode="no_text"
-        )
+        base_retriever = self.index.as_retriever(similarity_top_k=50, response_mode="no_text")
+        self.logger.info('Base retriever created')
 
-        # Use Hypothetical Document Embeddings (HyDE)
         hyde = HyDEQueryTransform(include_original=True, llm=self.llm)
+        self.logger.info('HyDEQueryTransform created')
 
         transform_retriever = TransformRetriever(base_retriever, hyde)
+        self.logger.info('TransformRetriever created')
 
         retrieved_nodes = transform_retriever.retrieve(query_bundle)
+        self.logger.info('Retrieved nodes: ' + str(retrieved_nodes))
         return retrieved_nodes
 
     def _prune(self, retrieved_nodes, top_k=5):
