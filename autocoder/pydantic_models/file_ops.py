@@ -116,7 +116,7 @@ class FileCreation(FileOperation):
             + "</user_instruction>\n"
         )
 
-        print(format_debug_msg(f"Creating file: {self.file_path}"))
+        print(format_debug_msg(f"Writing new file: {self.file_path}"))
 
         context = gather_context(
             input=input,

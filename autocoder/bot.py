@@ -3,7 +3,6 @@ from typing import List
 
 from actionweaver import action
 from actionweaver.utils.tokens import TokenUsageTracker
-from openai import AzureOpenAI, OpenAI
 
 from autocoder.pydantic_models.context import create_context, gather_context
 from autocoder.pydantic_models.file_ops import create_implementation_plan
@@ -15,15 +14,8 @@ MODEL = os.environ["MODEL"]
 
 
 class AutoCoder:
-    def __init__(self, index, codebase, create_branch=False):
-        self.client = trace_client(
-            AzureOpenAI(
-                azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-                api_key=os.getenv("AZURE_OPENAI_KEY"),
-                api_version="2023-10-01-preview",
-            )
-        )
-        # self.client = trace_client(OpenAI())
+    def __init__(self, index, codebase, llm, create_branch=False):
+        self.client = llm
         self.system_message = {
             "role": "system",
             "content": "You are a coding assistant, you have the capability to assist with code-related tasks and modify files.",
@@ -49,16 +41,16 @@ class AutoCoder:
             model=MODEL,
             messages=self.messages,
             stream=False,
-            temperature=1.0,
+            temperature=0.3,
             actions=[
                 self.get_issues,
                 self.question_answer,
+                self.list_all_files,
+                self.read_file,
                 self.create_pull_request,
                 self.plan_code_change,
                 self.create_branch,
-                self.list_all_files,
                 self.set_active_branch,
-                self.read_file,
             ],
             orch={
                 self.plan_code_change.name: self.summarize_changes,
@@ -79,14 +71,47 @@ class AutoCoder:
         self.messages.append({"role": "assistant", "content": content})
         return content
 
+    # @action(name="Modify", decorators=[traceable(run_type="tool")])
+    # def modify(self, input: str):
+    #     """
+    #     Use this if you plan to modify the codebase.
+    #     """
+    #     self.messages.append(
+    #         {
+    #             "role": "user",
+    #             "content": "<user_query>\n" + input + "\n</user_query>",
+    #         }
+    #     )
+
+    #     return self.client.chat.completions.create(
+    #         model=MODEL,
+    #         messages=self.messages,
+    #         stream=False,
+    #         temperature=0.1,
+    #         actions=[
+    #             self.create_pull_request,
+    #             self.plan_code_change,
+    #             self.create_branch,
+    #             self.set_active_branch,
+    #         ],
+    #         orch={
+    #             self.plan_code_change.name: self.summarize_changes,
+    #             self.create_pull_request.name: None,
+    #             self.create_branch.name: None,
+    #             self.set_active_branch.name: None,
+    #         },
+    #         token_usage_tracker=TokenUsageTracker(500),
+    #     )
+
     @action(name="CreateBranch", decorators=[traceable(run_type="tool")])
     def create_branch(self, branch: str):
         """
         Create a new Git branch.
         """
 
-        print(format_debug_msg(f"Creating branch: {branch}"))
-        return self.codebase.create_branch(branch)
+        msg = self.codebase.create_branch(branch)
+        print(format_debug_msg(msg))
+        return msg
 
     @action(name="SetActiveBranch", decorators=[traceable(run_type="tool")])
     def set_active_branch(self, branch: str):
@@ -135,13 +160,6 @@ class AutoCoder:
         response = response.split("\n")
         return eval(response[1]) if len(response) > 1 else []
 
-    @action(name="CreateGitBranch", decorators=[traceable(run_type="tool")])
-    def create_branch(self, branch: str):
-        """
-        Create a new Git branch.
-        """
-        return self.codebase.create_branch(branch)
-
     @action(name="CreatePullRequest", decorators=[traceable(run_type="tool")])
     def create_pull_request(self, title: str, description: str):
         """
@@ -157,16 +175,11 @@ class AutoCoder:
         )
 
     @action(name="ReadFile", stop=True, decorators=[traceable(run_type="tool")])
-    def read_file(self, filepath: str, start_line: int = -1, end_line: int = -1):
+    def read_file(self, filepath: str):
         """
-        Read a file from the codebase.
+        Read a file.
         """
-        content = self.codebase.read_file(filepath)
-
-        if start_line != -1 and end_line != -1:
-            content = "\n".join(content.split("\n")[start_line - 1 : end_line])
-
-        return content
+        return self.codebase.read_file(filepath)
 
     @action(
         "PlanAndImplementCodeChange",

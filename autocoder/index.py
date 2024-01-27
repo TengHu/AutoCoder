@@ -5,7 +5,6 @@ from typing import Optional
 from llama_index import Document, ServiceContext, VectorStoreIndex
 from llama_index.embeddings import OpenAIEmbedding
 from llama_index.indices.query.query_transform import HyDEQueryTransform
-from llama_index.llms import OpenAI
 from llama_index.node_parser import CodeSplitter
 from llama_index.postprocessor import LLMRerank
 from llama_index.query_engine.transform_query_engine import TransformQueryEngine
@@ -25,11 +24,11 @@ class QueryResult:
 
 
 class RepositoryIndex:
-    def __init__(self, github_repository, codebase):
+    def __init__(self, github_repository, codebase, llm):
         self.codebase = codebase
         self.github_repository = github_repository
 
-        self.llm = OpenAI(model="gpt-3.5-turbo-16k", temperature=0.1, max_tokens=256)
+        self.llm = llm
         self.embed_model = OpenAIEmbedding(model="text-embedding-ada-002")
         self.setup()
 
