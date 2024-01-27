@@ -67,18 +67,14 @@ class RepositoryIndex:
         return retrieved_nodes
 
     def _prune(self, retrieved_nodes, top_k=5):
-        # retrieved_nodes = retrieved_nodes[
-        #     : len(
-        #         self.find_numbers_before_drop(
-        #             [rn.score for rn in retrieved_nodes], margin=0.03
-        #         )
-        #     )
-        # ]
         retrieved_nodes = [rn for rn in retrieved_nodes if rn.score > 0.65]
+        self.logger.info('Pruned nodes: ' + str(retrieved_nodes))
+
         processed_nodes = []
         for node in retrieved_nodes[:top_k]:
             processed_nodes.append(node)
 
+        self.logger.info('Processed nodes: ' + str(processed_nodes))
         return processed_nodes
 
     def query(self, question: str):
