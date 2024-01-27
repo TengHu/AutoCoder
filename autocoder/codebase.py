@@ -21,7 +21,7 @@ class Codebase:
         self.file2code = {}
 
     def create_pull_request(self, pr_query):
-        return self.github_api.create_pull_request(pr_query)
+        return self.langchain_github_api.create_pull_request(pr_query)
 
     def get_active_branch(self):
         return self.github_api.active_branch
