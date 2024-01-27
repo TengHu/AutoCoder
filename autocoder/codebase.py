@@ -11,8 +11,9 @@ class Codebase:
         print('Codebase class instantiated')
 
     def list_files_in_bot_branch(self):
+        print('list_files_in_bot_branch called with no parameters')
         content = self.github_api.list_files_in_bot_branch()
-        files = content.split("\n")[1:]
+        files = content.split('\n')[1:]
         return files
 
     def set_active_branch(self, branch):
