@@ -64,6 +64,7 @@ class Codebase:
         return response
 
     def create_file(self, file_query):
+        print('Creating a new file.')
         return self.github_api.create_file(file_query)
 
     def update_file(self, content):
