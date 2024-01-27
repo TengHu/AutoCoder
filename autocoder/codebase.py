@@ -11,8 +11,9 @@ class Codebase:
         self.file2code = {}
 
     def list_files_in_bot_branch(self):
+        print('Calling method: list_files_in_bot_branch')
         content = self.github_api.list_files_in_bot_branch()
-        files = content.split("\n")[1:]
+        files = content.split('\n')[1:]
         return files
 
     def set_active_branch(self, branch):
