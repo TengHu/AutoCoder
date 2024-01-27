@@ -54,6 +54,7 @@ class Codebase:
         return response
 
     def read_files(self, files: List[str]) -> List[str]:
+        print('Reading multiple files.')
         response = {}
         for file in files:
             read_file_response = self.read_file(file)
