@@ -25,13 +25,13 @@ class QueryResult:
 
 
 class RepositoryIndex:
-    def __init__(self, github_repository, codebase):
-        self.codebase = codebase
-        self.github_repository = github_repository
+    def __init__(self, langchain_github_api, codebase):
+    self.codebase = codebase
+    self.langchain_github_api = langchain_github_api
 
-        self.llm = OpenAI(model="gpt-3.5-turbo-16k", temperature=0.1, max_tokens=256)
-        self.embed_model = OpenAIEmbedding(model="text-embedding-ada-002")
-        self.setup()
+    self.llm = OpenAI(model="gpt-3.5-turbo-16k", temperature=0.1, max_tokens=256)
+    self.embed_model = OpenAIEmbedding(model="text-embedding-ada-002")
+    self.setup()
 
     def setup(self):
         files = self.codebase.list_files_in_bot_branch()
