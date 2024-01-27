@@ -27,7 +27,7 @@ class Codebase:
         return self.langchain_github_api.active_branch
 
     def get_issues(self):
-        return self.github_api.get_issues()
+        return self.langchain_github_api.get_issues()
 
     def create_branch(self, branch: str):
         return self.github_api.create_branch(branch)
