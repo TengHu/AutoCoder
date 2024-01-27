@@ -5,8 +5,8 @@ from autocoder.telemetry import traceable
 
 # TODO: print messages when Codebase class is instantiated or when a method is called
 class Codebase:
-    def __init__(self, github_api):
-        self.github_api = github_api
+    def __init__(self, langchain_github_api):
+        self.langchain_github_api = langchain_github_api
         self.file2code = {}
 
     def list_files_in_bot_branch(self):
