@@ -2,7 +2,7 @@ def format_debug_msg(msg: str) -> str:
     """
     Format a debug message to be printed to the console.
     """
-    return light_green("[DEBUG]") + msg
+    return light_green("[DEBUG] ") + msg
 
 
 def bright_cyan(text):
