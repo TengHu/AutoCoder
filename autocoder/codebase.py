@@ -80,26 +80,17 @@ class Codebase:
         return self.github_api.update_file(content)
 
     def map_char_idx_to_line_idx(self, file_path, start_char_idx, end_char_idx):
+        print('Calling method: map_char_idx_to_line_idx')
         content = self.github_api.read_file(file_path)
-
-        # Split the content into lines
-        content_lines = content.split("\n")
-
+        content_lines = content.split('\n')
         start_line_idx = end_line_idx = -1
         total_chars = 0
-
-        # Iterate through each line and calculate the cumulative character count
         for line_idx, line in enumerate(content_lines):
             line_length = len(line) + 1  # Add 1 for the newline character
             total_chars += line_length
-
-            # Check if the start character index falls within this line
             if start_char_idx < total_chars and start_line_idx == -1:
                 start_line_idx = line_idx
-
-            # Check if the end character index falls within this line
             if end_char_idx <= total_chars and end_line_idx == -1:
                 end_line_idx = line_idx
                 break
-
         return content_lines, start_line_idx, end_line_idx
