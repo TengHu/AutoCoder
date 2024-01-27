@@ -55,8 +55,8 @@ class Codebase:
         return response
 
     def read_file_wrapper(self, filepath):
+        print(f'read_file_wrapper called with parameters {filepath}')
         response = self.github_api.read_file(filepath)
-
         return response
 
     def read_files(self, files: List[str]) -> List[str]:
