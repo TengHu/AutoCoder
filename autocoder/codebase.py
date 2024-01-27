@@ -69,6 +69,7 @@ class Codebase:
         return response
 
     def create_file(self, file_query):
+        print('Calling method: create_file')
         return self.github_api.create_file(file_query)
 
     @traceable(name="update_file_in_codebase", run_type="tool")
