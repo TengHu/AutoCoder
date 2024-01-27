@@ -1,0 +1,26 @@
+(define (repository-index-init self github-repository codebase)
+  (set! (repository-index-codebase self) codebase)
+  (set! (repository-index-github-repository self) github-repository)
+
+  (let ((llm (openai "gpt-3.5-turbo-16k" 0.1 256))
+        (embed-model (openai-embedding "text-embedding-ada-002")))
+    (set! (repository-index-llm self) llm)
+    (set! (repository-index-embed-model self) embed-model)
+    (repository-index-setup self)))
+
+(define (repository-index-setup self)
+  (let ((files (codebase-list-files-in-bot-branch (repository-index-codebase self))))
+    (set! (repository-index-files self) (filter (lambda (file) (string-contains? file ".py")) files))
+    ;; TODO: print messages when loading files
+    (set! (repository-index-documents self) (map (lambda (file)
+                                                    (document (codebase-read-file (repository-index-codebase self) file)
+                                                              '((file . file))))
+                                            (repository-index-files self)))
+
+    (let ((code-splitter (code-splitter-new "python" 40 25 2000))
+          (service-context nil)
+          (vector-store-index nil))
+      (set! service-context (service-context-from-defaults (repository-index-llm self) (repository-index-embed-model self) code-splitter))
+      (set! vector-store-index (vector-store-index-from-documents (repository-index-documents self) service-context))
+      (set! (repository-index-service-context self) service-context)
+      (set! (repository-index-index self) vector-store-index))))
