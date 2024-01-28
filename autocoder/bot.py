@@ -46,7 +46,7 @@ class AutoCoder:
                 self.get_issues,
                 self.question_answer,
                 self.list_all_files,
-                self.read_file,
+                # self.read_file,
                 self.create_pull_request,
                 self.plan_code_change,
                 self.create_branch,
@@ -58,7 +58,7 @@ class AutoCoder:
                 self.create_branch.name: None,
                 self.list_all_files.name: None,
                 self.set_active_branch.name: None,
-                self.read_file.name: None,
+                # self.read_file.name: None,
             },
             token_usage_tracker=TokenUsageTracker(500),
         )
@@ -214,6 +214,8 @@ class AutoCoder:
                 ),
             }
         ]
+
+        print(format_debug_msg("Creating implementation plan, please wait..."))
         implementation_plan = create_implementation_plan.invoke(
             self.client,
             messages=messages,
