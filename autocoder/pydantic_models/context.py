@@ -33,6 +33,8 @@ class Context(BaseModel):
 def gather_context(input, llm_client, index, codebase, add_line_index=False) -> str:
     user_prompt = input
 
+    print(format_debug_msg("Gathering context, please wait..."))
+
     messages = [
         {
             "role": "user",
@@ -53,6 +55,7 @@ def gather_context(input, llm_client, index, codebase, add_line_index=False) -> 
     results = defaultdict(list)
     nodes = []
     for query in context.questions_to_ask + context.object_identifiers:
+        print(format_debug_msg(f"Querying information about {query}"))
         nodes.extend(index.query(query))
 
     # Dedup nodes
@@ -77,6 +80,9 @@ def gather_context(input, llm_client, index, codebase, add_line_index=False) -> 
         )
 
     valid_files = set(codebase.list_files_in_bot_branch())
+    print(
+        f"Reading files: {set(context.file_name_mentioned_in_instruction).intersection(valid_files)}"
+    )
     files_response = codebase.read_files(
         [
             file
