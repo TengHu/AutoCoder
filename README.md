@@ -1,8 +1,12 @@
 # AutoCoder: An Experimental Coding Agent
 
-AutoCoder is a cutting-edge, experimental coding agent that leverages the power of LLM, [ActionWeaver](https://github.com/TengHu/ActionWeaver) for function calling & orchestration, [LLamaIndex](https://www.llamaindex.ai/) for Retrieval-Augmented Generation (RAG), [Langchain](https://www.langchain.com/) community and [Langsmith](https://www.langchain.com/langsmith) for observability.
+AutoCoder is an experimental description-to-pull-request agent that leverages the power of LLM, [ActionWeaver](https://github.com/TengHu/ActionWeaver) for function calling & orchestration, [LLamaIndex](https://www.llamaindex.ai/) for Retrieval-Augmented Generation (RAG), [Langchain](https://www.langchain.com/) community and [Langsmith](https://www.langchain.com/langsmith) for observability.
 
 Please note that this demo app is not intended for production use. This bot is only looking at python files at the moment.
+
+[Demo video1](https://www.loom.com/share/cf5084070d1748439b51a3be334a058c?sid=0f3e332d-4908-4e1c-93f6-28ff6097505e)
+
+[Demo video2](https://www.loom.com/share/e5625f3e4cf54451936bfe0183b8f5f5?sid=dbec9442-18f6-4bf5-b558-b53df0d86f27)
 
 
 ## Example Pull Requests
@@ -11,20 +15,16 @@ All examples are executed using the Azure gpt-4-32k model
 **Prompt**: [Code Change] Enhance the 'Example Pull Requests' section in the README.md to be more detailed and descriptive.
 ([PR](https://github.com/TengHu/AutoCoder/pull/77), [LangSmith traces](https://smith.langchain.com/public/11db987a-70c6-4f96-97b6-77db702e67d0/r))
 
-
-**Prompt**: [Code Change] Update the codebase to use OpenAI instead of AzureOpenAI client. ([PR](https://github.com/TengHu/AutoCoder/pull/96), [LangSmith traces](https://smith.langchain.com/public/510ae5c6-c6ee-483b-904e-02ca8360fe3d/r))
-
+**Prompt**: [Code Change] Update the codebase to use OpenAI instead of AzureOpenAI client. 
+([PR](https://github.com/TengHu/AutoCoder/pull/96), [LangSmith traces](https://smith.langchain.com/public/510ae5c6-c6ee-483b-904e-02ca8360fe3d/r))
 
 **Prompt**: 
 [Code Change] Move all classes from autocoder/pydantic_models/file_ops.py into separate files, one for each class. Remove the code in original file.
 ([PR](https://github.com/TengHu/AutoCoder/pull/97),  [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&peek=91f32e3f-c175-4621-a473-cefd8460f319))
 
-
-
 **Prompt**: 
 [Code Change] Implement all TODO items in autocoder/codebase.py
 [PR](https://github.com/TengHu/AutoCoder/pull/98), [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&peek=7d5cf6ad-ea0a-4fc4-a1d5-abb50bc2cda4)
-
 
 **Prompt**:
 [Code Change] rename every `github_api` variable to `langchain_github_api` within the codebase. Do not remove anything else.
@@ -37,15 +37,11 @@ All examples are executed using the Azure gpt-4-32k model
 **Prompt**: [Code Change] Optimize the code in `autocoder/telemetry.py`
 - refactor identity_decorator to be more compact
 - remove redundant code in traceable and trace_client
-
 ([PR](https://github.com/TengHu/AutoCoder/pull/101), [LangSmith traces](https://smith.langchain.com/o/2a666482-a835-4718-9413-7991c7a8fbdf/projects/p/080603e5-0dba-4e2b-ab57-bd6707f355f2?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&tab=0&peek=0cdd3a59-dc89-4c3a-b7a8-81545edbe4fa))
 
+## [How AutoCoder works under the hood](HowItWorks.md)
 
-
-## Architecture 
-![graph](docs/figures/workflow.png)
-
-## Capabilities
+## Features
 AutoCoder is capable of following tasks:
 -  GetIssues
     - **Description**: Fetches a list of issues from the GitHub repository.
@@ -68,18 +64,14 @@ AutoCoder is capable of following tasks:
 
 ### Step 2: Set Up Environment Variables
 - **GitHub API Access**: Set `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY`.
-- **OpenAI Access**: Set `OPENAI_API_KEY` and specify the model in `MODEL`, e.g., `MODEL=gpt-4-0613`.
+- **OpenAI Access**: Set `OPENAI_API_KEY` and specify the model in `MODEL`, e.g., `MODEL=gpt-4-0613`. Or `AZURE_OPENAI_KEY` and `AZURE_OPENAI_ENDPOINT` if using Azure OpenAI service.
 - **Langchain Monitoring** (Optional): Set `LANGCHAIN_API_KEY`.
 
-### Step 3: Explore the Demo Notebook or main.py
-- Use `notebooks/demo.ipynb` for a practical introduction and experimentation.
-
+### Step 3: Talk to AutoCoder in `notebooks/demo.ipynb` or main.py
 
 ## Tips
-
 - **Precision in Requests**: When requesting the bot to perform tasks, be precise with file paths and provide detailed, descriptive information instead of one-liner.
 - **Handling Partial Implementations**: The bot may occasionally insert comments such as "to-be-implemented" rather than fully writing out the code. In such cases, you can guide the bot towards the desired outcome through multiple rounds of conversation.
-
 
 ## Contributing
 We welcome contributions from the open-source community.
